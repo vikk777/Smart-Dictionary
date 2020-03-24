@@ -1,1 +1,2 @@
 *.sublime-*
+*app/model/__pycache__/*
