@@ -1,36 +1,36 @@
-from word import Word
+# from .word import Word
+
 
 class Dictionary():
-	
-	def __init__(self, _name, _description):
-		self._name = _name
-		self._description = _description
-		self._words = dict()#or list()
+    def __init__(self, name, description=None):
+        self._name = name
+        self._description = description
+        self._words = dict()  # or list()
 
-	def setName(self, _name):
-		self._name = _name
+    def setName(self, name):
+        self._name = name
 
-	def setDescription(self, _description):
-		self._description = _description
+    def setDescription(self, description):
+        self._description = description
 
-	def name(self):
-		return self._name
+    def name(self):
+        return self._name
 
-	def description(self):
-		return self._description
+    def description(self):
+        return self._description
 
-	def words(self):
-		return self._words
+    def words(self):
+        return self._words
 
-	def word(self, _word):
-		return self._words.get(_word)
+    def word(self, word):
+        return self._words.get(word)
 
-	def addWord(self, _word):
-		self._words[_word.original()] = _word
+    def addWord(self, word):
+        self._words[word.original()] = word
 
-	def deleteWord(self, _word):
-		del self._words[_word]
+    def deleteWord(self, word):
+        del self._words[word]
 
-	def changeWord(self, _old, _new):
-		del self._words[_old]
-		self._words[_new.original()] = _new
+    def changeWord(self, old, new):
+        del self._words[old]
+        self._words[new.original()] = new

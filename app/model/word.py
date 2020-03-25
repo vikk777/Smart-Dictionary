@@ -1,25 +1,25 @@
 
 class Word():
-	
-	def __init__(self, _original, _translate, _transcription):
-		self._original = _original 
-		self._translate = _translate 
-		self._transcription = _transcription
 
-	def setOriginal(self, _original):
-		self._original = _original 
+    def __init__(self, original, translate, transcription=None):
+        self._original = original
+        self._translate = translate
+        self._transcription = transcription
 
-	def setTranslate(self, _translate):
-		self._translate = _translate 
+    def setOriginal(self, original):
+        self._original = original
 
-	def setTranscription(self, _transcription):
-		self._transcription = _transcription
+    def setTranslate(self, translate):
+        self._translate = translate
 
-	def original(self):
-		return self._original
+    def setTranscription(self, transcription):
+        self._transcription = transcription
 
-	def translate(self):
-		return self._translate
+    def original(self):
+        return self._original
 
-	def transcription(self):
-		return self._transcription
+    def translate(self):
+        return self._translate
+
+    def transcription(self):
+        return self._transcription
