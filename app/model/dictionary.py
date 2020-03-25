@@ -1,11 +1,8 @@
-# from .word import Word
-
-
 class Dictionary():
     def __init__(self, name, description=None):
         self._name = name
         self._description = description
-        self._words = dict()  # or list()
+        self._words = dict()
 
     def setName(self, name):
         self._name = name
@@ -32,5 +29,6 @@ class Dictionary():
         del self._words[word]
 
     def changeWord(self, old, new):
-        del self._words[old]
-        self._words[new.original()] = new
+        if old != new.original():
+            del self._words[old]
+        self.addWord(new)
