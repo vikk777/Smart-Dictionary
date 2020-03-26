@@ -1,0 +1,21 @@
+{% extends "base-page.html" %}
+
+{% block title %}
+    Add word
+{% endblock %}
+
+{% block content %}
+    <form action="" method="post">
+        <input type="text" name="original" class="" placeholder="original" required pattern="^[a-zA-Z\s]+$">
+        <input type="text" name="translate" class="" placeholder="translate" required pattern="^[А-Яа-яЁё\s]+$">
+        <input type="text" name="transcription" class="" placeholder="transcription" pattern="^[А-Яа-яЁё\s]+$">
+
+        <select name="dictionary">
+            {% for dict in dicts %}
+                <option value="{{ dict }}">{{ dict }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="submit" value="Add">
+    </form>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base-page.html" %}
+
+{% block title %}
+    Dictionaries
+{% endblock %}
+
+{% block content %}
+    {# context:
+        dicts: list of dicts names
+        words: list of words of current dict
+        viewDict: touple of current dict
+     #}
+
+    {# dictionary list
+        dict[0] - name
+        dict[1] - description
+    #}
+    {% for dict in dicts %}
+        <div>
+            <a href="{{ url_for('dictionaries', view=dict[0]) }}">{{ dict[0] }}</a>
+            <span>{{ dict[1] }}</span>
+        </div>
+    {% endfor %}
+
+    {# link for new dict #}
+    <a href="{{ url_for('addDictionary') }}"></a>
+
+    {# form for new dict #}
+    <form action="" method="post">
+        <input type="submit" name="addDict" value="Add dictionary">
+    </form>
+
+    {# form for change dict #}
+    {% if viewDict %}
+        <div>
+            <form action="" method="post">
+                <input type="text" name="name" value="{{ viewDict[0] }}">
+                <input type="text" name="description" value="{{ viewDict[1] }}">
+                <input type="submit" name="changeDict" value="Change dictionary">
+                <input type="hidden" name="old" value="{{ viewDict[0] }}">
+            </form>
+        </div>
+    {% endif %}
+
+    {# words list
+        word[0] - original
+        word[1] - translate
+        word[2] - transcription
+    #}
+    {% if words %}
+        {% for word in words %}
+            <form action="" method="post">
+                <input type="text" name="original" value="{{ word[0] }}">
+                <span>
+                    [<input type="text" name="transcription" value="{{ word[2] }}" placeholder="transcription">]
+                </span>
+                <span>-</span>
+                <input type="text" name="translate" value="{{ word[1] }}">
+                <input type="submit" name="changeWord" value="Change">
+                <input type="hidden" name="old" value="{{ word[0] }}">
+                <input type="hidden" name="dictionary" value="{{ viewDict[0] }}">
+            </form>
+
+            <form action="" method="post">
+                <input type="submit" name="deleteWord" value="Delete">
+                <input type="hidden" name="original" value="{{ word[0] }}">
+                <input type="hidden" name="dictionary" value="{{ viewDict[0] }}">
+            </form>
+        {% endfor %}
+    {% endif %}
+
+    {# add word #}
+    {% if viewDict %}
+        <form action="" method="post">
+            <input type="text" name="original" class="" placeholder="original" required pattern="^[a-zA-Z\s]+$">
+            <input type="text" name="translate" class="" placeholder="translate" required pattern="^[А-Яа-яЁё\s]+$">
+            <input type="text" name="transcription" class="" placeholder="transcription" pattern="^[А-Яа-яЁё\s]+$">
+            <input type="submit" name="addWord" value="Add word">
+            <input type="hidden" name="dictionary" value="{{ viewDict[0] }}">
+        </form>
+    {% endif %}
+
+    {# delete dict #}
+    {% if viewDict %}
+        {# <a href="{{ url_for('dictionaries', delete=viewDict[0]) }}"></a> #}
+        <form action="" method="post">
+            <input type="submit" name="deleteDict" value="Delete dictionary">
+            <input type="hidden" name="name" value="{{ viewDict[0] }}">
+        </form>
+    {% endif %}
+
+{% endblock %}
