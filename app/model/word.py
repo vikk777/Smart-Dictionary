@@ -1,6 +1,4 @@
-
 class Word():
-
     def __init__(self, original, translate, transcription=None):
         self._original = original
         self._translate = translate

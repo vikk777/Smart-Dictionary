@@ -12,7 +12,7 @@
 
         <select name="dictionary">
             {% for dict in dicts %}
-                <option value="{{ dict }}">{{ dict }}</option>
+                <option value="{{ dict[0] }}">{{ dict[0] }}</option>
             {% endfor %}
         </select>
 
