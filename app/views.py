@@ -1,5 +1,5 @@
 from . import app
-from flask import request, redirect, render_template
+from flask import request, redirect, render_template, url_for
 from .model.smart_dictionary import SmartDictionary
 # from .controller import SmartDictionary
 
@@ -29,24 +29,27 @@ def addWord():
 
 @app.route('/dictionaries', methods=['POST', 'GET'])
 def dictionaries():
+    view = request.args.get('view')  # dict name for view
+
     if request.method == 'POST':
         if 'addDict' in request.form:
             name = request.form.get('name')
             description = request.form.get('description')
             smartDict.addDictionary(name, description)
-            view = name
+            return redirect(url_for('dictionaries', view=name))
 
         if 'deleteDict' in request.form:
             name = request.form.get('name')
             smartDict.deleteDictionary(name)
-            view = ''
+            # view = ''
+            return redirect(url_for('dictionaries'))
 
         if 'changeDict' in request.form:
             name = request.form.get('name')
             description = request.form.get('description')
             old = request.form.get('old')
             smartDict.changeDictionary(old, name, description)
-            view = name
+            return redirect(url_for('dictionaries', view=name))
 
         if 'addWord' in request.form:
             dictionary = request.form.get('dictionary')
@@ -69,8 +72,7 @@ def dictionaries():
             dictionary = request.form.get('dictionary')
             original = request.form.get('original')
             smartDict.deleteWord(dictionary, original)
-    else:
-        view = request.args.get('view')  # dict name for view
+    # else:
 
     viewDict = smartDict.dictionary(view) if view else ()
     words = smartDict.words(view) if view else []

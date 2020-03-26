@@ -23,12 +23,12 @@
     {% endfor %}
 
     {# link for new dict #}
-    <a href="{{ url_for('addDictionary') }}"></a>
+    <a href="{{ url_for('addDictionary') }}">Add dictionary</a>
 
     {# form for new dict #}
-    <form action="" method="post">
+    {# <form action="" method="post">
         <input type="submit" name="addDict" value="Add dictionary">
-    </form>
+    </form> #}
 
     {# form for change dict #}
     {% if viewDict %}
