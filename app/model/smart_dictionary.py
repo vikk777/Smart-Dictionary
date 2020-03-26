@@ -8,7 +8,7 @@ class SmartDictionary(object):
         # Change name!
         self.addDictionary('Dict', 'Default dictionary')
 
-    def dictionary(self, name):
+    def words(self, name):
         dict_words = list()
         # List all objects "Word" of this dictionary
         words = list(self._dicts.get(name).words().values())
@@ -20,14 +20,14 @@ class SmartDictionary(object):
             dict_words.append((original, translate, transcription))
         return dict_words
 
+    def dictionary(self, name):
+        dict_info = self._dicts.get(name)
+        return (dict_info.name(), dict_info.description())
+
     def dictionaries(self):
         dict_info = list()
-        # List all objects "Dictionary"
-        dictionaries = list(self._dicts.values())
-        for i in range(len(dictionaries)):
-            name = dictionaries[i].name()
-            description = dictionaries[i].description()
-            dict_info.append((name, description))
+        for name in list(self._dicts.keys()):
+            dict_info.append(self.dictionary(name))
         return dict_info
 
     # def isEmpty(self):
