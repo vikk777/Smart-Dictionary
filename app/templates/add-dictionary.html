@@ -6,8 +6,8 @@
 
 {% block content %}
     <form action="{{ url_for('dictionaries') }}" method="post">
-        <input type="text" name="name" class="" placeholder="Dictionary name" required pattern="^[a-zA-Z\s]+$">
-        <input type="text" name="description" class="" placeholder="Dictionary description" required pattern="^[a-zA-Z\s]+$">
-        <input type="submit" name="addDict" value="Create dictionary">
+        {% for field in form %}
+            {{ field }}
+        {% endfor %}
     </form>
 {% endblock %}

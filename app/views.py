@@ -1,7 +1,8 @@
 from . import app
 from flask import request, redirect, render_template, url_for
 from .model.smart_dictionary import SmartDictionary
-# from .controller import SmartDictionary
+from .forms.word import AddWordForm, ChangeWordForm, DeleteWordForm
+from .forms.dictionary import AddDictionaryForm, DeleteDictionaryForm, ChangeDictionaryForm
 
 smartDict = SmartDictionary()
 
@@ -13,18 +14,18 @@ def index():
 
 @app.route('/add-word', methods=['POST', 'GET'])
 def addWord():
-    if request.method == 'POST':
-        dictionary = request.form.get('dictionary')
-        original = request.form.get('original')
-        translate = request.form.get('translate')
-        transcription = request.form.get('transcription')
+    form = AddWordForm()
+    form.makeDictSelectField()
+    form.dictionary.choices = smartDict.dictionaries()
+
+    if form.validate_on_submit():
+        dictionary = form.dictionary.data
+        original = form.original.data
+        translate = form.translate.data
+        transcription = form.transcription.data
         smartDict.addWord(dictionary, original, translate, transcription)
 
-        # if transcription:
-        # else:
-        #     smartDict.addWord(dictionary, original, translate)
-
-    return render_template('add-word.html', dicts=smartDict.dictionaries())
+    return render_template('add-word.html', form=form)
 
 
 @app.route('/dictionaries', methods=['POST', 'GET'])
@@ -75,6 +76,15 @@ def dictionaries():
     # else:
 
     viewDict = smartDict.dictionary(view) if view else ()
+    forms = dict()
+
+    if view:
+        forms['addWord'] = AddWordForm()
+        forms['changeWord'] = ChangeWordForm()
+        forms['deleteWord'] = DeleteWordForm()
+        forms['changeDict'] = ChangeDictionaryForm()
+        forms['deleteDict'] = DeleteDictionaryForm()
+
     words = smartDict.words(view) if view else []
     dicts = smartDict.dictionaries()
 
@@ -82,9 +92,11 @@ def dictionaries():
         'dictionaries.html',
         dicts=dicts,
         words=words,
-        viewDict=viewDict)
+        viewDict=viewDict,
+        forms=forms)
 
 
 @app.route('/dictionaries/add')
 def addDictionary():
-    return render_template('add-dictionary.html')
+    form = AddDictionaryForm()
+    return render_template('add-dictionary.html', form=form)
