@@ -9,6 +9,7 @@
         dicts: list of dicts names
         words: list of words of current dict
         viewDict: touple of current dict
+        forms: dict of available forms
      #}
 
     {# dictionary list
@@ -28,7 +29,8 @@
     {# form for change dict #}
     {% if viewDict %}
         <div>
-            <form action="" method="post">
+            <form action="{{ url_for('changeDictionary') }}" method="post">
+                {{ forms['changeDict'].csrf_token }}
                 {{ forms['changeDict'].name(value=viewDict[0]) }}
                 {{ forms['changeDict'].description(value=viewDict[1]) }}
                 {{ forms['changeDict'].changeDict() }}
@@ -44,18 +46,21 @@
     #}
     {% if words %}
         {% for word in words %}
-            <form action="" method="post">
+            <form action="{{ url_for('changeWord') }}" method="post">
+                {{ forms['changeWord'].csrf_token }}
                 {{ forms['changeWord'].original(value=word[0]) }}
-                <span>
-                {{ forms['changeWord'].original(value=word[2]) }}
-                </span>
+                <span>[
+                {{ forms['changeWord'].transcription(value=word[2]) }}
+                ]</span>
                 <span>-</span>
                 {{ forms['changeWord'].translate(value=word[1]) }}
-                {{ forms['changeWord'].old() }}
-                {{ forms['changeWord'].dictionary() }}
+                {{ forms['changeWord'].old(value=word[0]) }}
+                {{ forms['changeWord'].dictionary(value=viewDict[0]) }}
+                {{ forms['changeWord'].changeWord() }}
             </form>
 
-            <form action="" method="post">
+            <form action="{{ url_for('deleteWord') }}" method="post">
+                {{ forms['deleteWord'].csrf_token }}
                 {{ forms['deleteWord'].deleteWord() }}
                 {{ forms['deleteWord'].original(value=word[0]) }}
                 {{ forms['deleteWord'].dictionary(value=viewDict[0]) }}
@@ -64,8 +69,9 @@
     {% endif %}
 
     {# add word #}
-    {% if forms %}
-        <form action="" method="post">
+    {% if viewDict %}
+        <form action="{{ url_for('addWordWrapper') }}" method="post">
+            {{ forms['addWord'].csrf_token }}
             {{ forms['addWord'].original() }}
             {{ forms['addWord'].translate() }}
             {{ forms['addWord'].transcription() }}
@@ -76,7 +82,8 @@
 
     {# delete dict #}
     {% if viewDict %}
-        <form action="" method="post">
+        <form action="{{ url_for('deleteDictionary') }}" method="post">
+            {{ forms['deleteDict'].csrf_token }}
             {{ forms['deleteDict'].name(value=viewDict[0]) }}
             {{ forms['deleteDict'].deleteDict() }}
         </form>

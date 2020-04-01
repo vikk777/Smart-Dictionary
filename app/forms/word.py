@@ -25,9 +25,11 @@ class WordFullForm(WordBaseForm):
 
 
 class AddWordForm(WordFullForm):
-    def makeDictSelectField(self):
-            AddWordForm.dictionary = SelectField()
     addWord = SubmitField('Add word')
+
+
+class AddWordSelectForm(AddWordForm):
+    dictionary = SelectField()
 
 
 class ChangeWordForm(WordFullForm):
@@ -38,5 +40,3 @@ class ChangeWordForm(WordFullForm):
 class DeleteWordForm(WordBaseForm):
     original = HiddenField()
     deleteWord = SubmitField('Delete word')
-
-# class AddDictionaryForm(FlaskForm):
