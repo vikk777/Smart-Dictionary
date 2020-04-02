@@ -1,5 +1,5 @@
 class Dictionary():
-    def __init__(self, name, description=None):
+    def __init__(self, name, description):
         self._name = name
         self._description = description
         self._words = dict()
@@ -23,6 +23,8 @@ class Dictionary():
         return self._words.get(word)
 
     def addWord(self, word):
+        if word.original() in self._words.keys():
+            del self._words[word.original()]
         self._words[word.original()] = word
 
     def deleteWord(self, word):
