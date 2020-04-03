@@ -15,19 +15,19 @@ def index():
 
 
 @app.route('/add-word/', methods=['POST', 'GET'])
-def addWord(externForm=None):
-    if externForm:
-        form = externForm
-    else:
-        form = AddWordSelectForm()
-        choices = list()
+def addWord(wrapped=False):
+    """
+    wrapped is used for save flashed messages
+    """
+    form = AddWordSelectForm()
+    choices = list()
 
-        # take list of touples (name, name)
-        # for <select>
-        for touple in smartDict.dictionaries():
-            choices.append((touple[0], touple[0]))
+    # take list of touples (name, name)
+    # for <select>
+    for touple in smartDict.dictionaries():
+        choices.append((touple[0], touple[0]))
 
-        form.dictionary.choices = choices
+    form.dictionary.choices = choices
 
     if form.validate_on_submit():
         dictionary = form.dictionary.data
@@ -39,26 +39,24 @@ def addWord(externForm=None):
         try:
             smartDict.addWord(dictionary, original,
                               translate, transcription, replace)
+            flash('Word {0} was added to {1}.'.format(
+                original, dictionary))
+
         except DictionaryNotExistError:
-            flash('Dictionary {} doesn\'t exist!').format(dictionary)
+            flash('Dictionary {} doesn\'t exist!'.format(dictionary))
 
-        flash('Word {0} was added to {1}.'.format(
-            original, dictionary))
+        return wrapped if wrapped else redirect(url_for('addWord'))
 
-        if externForm:
-            return form
-        else:
-            return redirect(url_for('addWord'))
+    else:  # form not valid
+        flashErrors(form)
 
-    if externForm:
-        return form
-    else:
-        return render_template('add-word.html', form=form)
+    return wrapped if wrapped else render_template('add-word.html', form=form)
 
 
 @app.route('/dictionaries/', methods=['POST', 'GET'])
 def dictionaries():
     view = request.args.get('view')  # dict name for view
+
     try:
         words = smartDict.words(view) if view else []
         viewDict = smartDict.dictionary(view) if view else ()
@@ -95,12 +93,13 @@ def addDictionary():
 
         try:
             smartDict.addDictionary(name, description)
+            flash('Dictionary {} created.'.format(name))
+            return redirect(url_for('dictionaries', view=name))
+
         except DictionaryAlreadyExistError:
             flash('Dictionary {} already exist!'.format(name))
-
-        flash('Dictionary {} created.'.format(name))
-
-        return redirect(url_for('dictionaries', view=name))
+    else:  # form not valid
+        flashErrors(form)
 
     return render_template('add-dictionary.html', form=form)
 
@@ -114,12 +113,16 @@ def deleteDictionary():
 
         try:
             smartDict.deleteDictionary(name)
+            flash('Dictionary {} was deleted.'.format(name))
+            return redirect(url_for('dictionaries'))
+
         except DictionaryNotExistError:
             flash('Dictionary {} doesn\'t exist!'.format(name))
 
-        flash('Dictionary {} was deleted.'.format(name))
+    else:  # form not valid
+        flashErrors(form)
 
-    return redirect(url_for('dictionaries'))
+    return redirect(request.referrer)
 
 
 @app.route('/dictionaries/change/', methods=['POST'])
@@ -133,26 +136,24 @@ def changeDictionary():
 
         try:
             smartDict.changeDictionary(old, name, description)
+            flash('Dictionary {} was changed.'.format(name))
+            return redirect(url_for('dictionaries', view=name))
+
         except DictionaryAlreadyExistError:
             flash('Dictionary {} already exist!'.format(name))
         except DictionaryNotExistError:
             flash('Dictionary {} doesn\'t exist!'.format(old))
 
-        flash('Dictionary {} was changed.'.format(name))
-        return redirect(url_for('dictionaries', view=name))
+    else:  # form not valid
+        flashErrors(form)
 
-    flashErrors(form)
     return redirect(request.referrer)
 
 
 @app.route('/dictionaries/add-word/', methods=['POST'])
 def addWordWrapper():
-    form = addWord(AddWordForm())
-    dictionary = form.dictionary.data
-    if form.errors:
-        flashErrors(form)
-
-    return redirect(url_for('dictionaries', view=dictionary))
+    addWord(wrapped=True)
+    return redirect(request.referrer)
 
 
 @app.route('/dictionaries/change-word/', methods=['POST'])
@@ -169,15 +170,18 @@ def changeWord():
         try:
             smartDict.changeWord(dictionary, old, original,
                                  translate, transcription)
+            flash('Word {} was changed.'.format(old))
+            return redirect(url_for('dictionaries', view=dictionary))
+
         except DictionaryNotExistError:
             flash('Dictionary {} doesn\'t exist!'.format(dictionary))
         except WordNotExistError:
             flash('Word {} doesn\'t exist!'.format(old))
 
-    if form.errors:
+    else:  # form not valid
         flashErrors(form)
 
-    return redirect(url_for('dictionaries', view=dictionary))
+    return redirect(request.referrer)
 
 
 @app.route('/dictionaries/delete-word/', methods=['POST'])
@@ -190,12 +194,15 @@ def deleteWord():
 
         try:
             smartDict.deleteWord(dictionary, original)
+            flash('Word {} was deleted.'.format(original))
+            return redirect(url_for('dictionaries', view=dictionary))
+
         except DictionaryNotExistError:
             flash('Dictionary {} doesn\'t exist!'.format(dictionary))
         except WordNotExistError:
             flash('Word {} doesn\'t exist!'.format(original))
 
-    if form.errors:
+    else:  # form not valid
         flashErrors(form)
 
-    return redirect(url_for('dictionaries', view=dictionary))
+    return redirect(request.referrer)

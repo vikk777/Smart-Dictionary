@@ -11,16 +11,15 @@
         {% endfor %}
     </form>
 
-    {% if form.errors %}
-        {% for field in form %}
-            <ul>
-                {% for error in field.errors %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
                     <li>
-                        {{ field.label }}:
-                        {{ error }}
+                        {{ message }}
                     </li>
-                {% endfor %}
-            </ul>
-        {% endfor %}
-    {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
 {% endblock %}
