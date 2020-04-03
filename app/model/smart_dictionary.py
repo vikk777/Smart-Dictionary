@@ -22,7 +22,6 @@ class SmartDictionary(object):
                 dict_words.append((original, translate, transcription))
             return dict_words
         else:
-            # return False
             raise DictionaryNotExistError
 
     def dictionary(self, name):
@@ -30,7 +29,6 @@ class SmartDictionary(object):
             dict_info = self._dicts.get(name)
             return (dict_info.name(), dict_info.description())
         else:
-            # return False
             raise DictionaryNotExistError
 
     def dictionaries(self):
@@ -48,7 +46,6 @@ class SmartDictionary(object):
             words = list(self._dicts.get(name).words().values())
             return len(words)
         else:
-            # return False
             raise DictionaryNotExistError
 
     def totalWords(self):
@@ -68,7 +65,6 @@ class SmartDictionary(object):
             self._dicts[name] = Dictionary(name, description)
             return True
         else:
-            # return False
             raise DictionaryAlreadyExistError
 
     def deleteDictionary(self, name):
@@ -76,7 +72,6 @@ class SmartDictionary(object):
             del self._dicts[name]
             return True
         else:
-            # return False
             raise DictionaryNotExistError
 
     def changeDictionary(self, old_name, new_name, description):
@@ -96,10 +91,8 @@ class SmartDictionary(object):
                     self._dicts[new_name] = dictionary
                 return True
             else:
-                # return False
                 raise DictionaryAlreadyExistError
         else:
-            # return False
             raise DictionaryNotExistError
 
     def addWord(self, name, original, translate, transcrip, replace=False):
@@ -120,7 +113,6 @@ class SmartDictionary(object):
                 self._dicts[name].addWord(new_word)
             return True
         else:
-            # return False
             raise DictionaryNotExistError
 
     def deleteWord(self, name, original):
