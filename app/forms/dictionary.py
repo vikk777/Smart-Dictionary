@@ -1,19 +1,29 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField, SubmitField, SelectField
+from wtforms import StringField, HiddenField, SubmitField
+from wtforms.validators import DataRequired, Regexp
 
 
 class DictionaryBaseForm(FlaskForm):
-    name = StringField(render_kw={
-        'placeholder': 'Dictionary name',
-        'required': 'True',
-        'pattern': '^[a-zA-Z\s]+$'})
+    name = StringField(
+        'Name',
+        validators=[
+            DataRequired(),
+            Regexp('^[a-zA-Zа-яА-ЯёЁ\s]+$',
+                   message='Latin and russian letters and spaces only.')
+        ],
+        render_kw={
+            'placeholder': 'Dictionary name'})
 
 
 class DictionaryFullForm(DictionaryBaseForm):
-    description = StringField(render_kw={
-        'placeholder': 'Dictionary description',
-        'required': 'True',
-        'pattern': '^[a-zA-Z\s]+$'})
+    description = StringField(
+        'Description',
+        validators=[
+            Regexp('^[a-zA-Zа-яА-ЯёЁ\s]+$',
+                   message='Latin and russian letters and spaces only.')
+        ],
+        render_kw={
+            'placeholder': 'Dictionary description'})
 
 
 class AddDictionaryForm(DictionaryFullForm):

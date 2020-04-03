@@ -10,4 +10,17 @@
             {{ field }}
         {% endfor %}
     </form>
+
+    {% if form.errors %}
+        {% for field in form %}
+            <ul>
+                {% for error in field.errors %}
+                    <li>
+                        {{ field.label }}:
+                        {{ error }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endif %}
 {% endblock %}

@@ -1,27 +1,36 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField, SubmitField, SelectField
+from wtforms import StringField, HiddenField, SubmitField, SelectField, BooleanField
+from wtforms.validators import DataRequired, Regexp
 
 
 class WordBaseForm(FlaskForm):
-    original = StringField(render_kw={
-        'value': '',
-        'placeholder': 'original',
-        'required': 'True',
-        'pattern': '^[a-zA-Z\s]+$'})
+    original = StringField(
+        'Original',
+        validators=[
+            DataRequired(),
+            Regexp('^[a-zA-Z\s]+$',
+                   message='Latin letters and spaces only.')
+        ],
+        render_kw={'placeholder': 'original'})
 
     dictionary = HiddenField()
 
 
 class WordFullForm(WordBaseForm):
-    translate = StringField(render_kw={
-        'value': '',
-        'placeholder': 'translate',
-        'required': 'True',
-        'pattern': '^[А-Яа-яЁё\s]+$'})
+    translate = StringField(
+        'Translate',
+        validators=[
+            DataRequired(),
+            Regexp('^[А-Яа-яЁё\s]+$',
+                   message='Russian letters and spaces only.')
+        ],
+        render_kw={'placeholder': 'translate'})
 
-    transcription = StringField(render_kw={
-        'value': '',
-        'placeholder': 'transcription'})
+    transcription = StringField(
+        'Transcription',
+        render_kw={'placeholder': 'transcription'})
+
+    replace = BooleanField(label='Replace')
 
 
 class AddWordForm(WordFullForm):

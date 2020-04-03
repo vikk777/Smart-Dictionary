@@ -16,6 +16,17 @@
         dict[0] - name
         dict[1] - description
     #}
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+                {% for message in messages %}
+                        <p>
+                            {{ message }}
+                        </p>
+                {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     {% for dict in dicts %}
         <div>
             <a href="{{ url_for('dictionaries', view=dict[0]) }}">{{ dict[0] }}</a>

@@ -6,11 +6,43 @@
 
 {% block content %}
     <form action="" method="post">
-        {{ form.csrf_token }}
-        {{ form.original() }}
-        {{ form.translate() }}
-        {{ form.transcription() }}
-        {{ form.dictionary() }}
-        {{ form.addWord() }}
+        {% if form.dictionary.choices %}
+            {{ form.csrf_token }}
+            {{ form.original() }}
+            {{ form.translate() }}
+            {{ form.transcription() }}
+            {{ form.replace.label }}
+            {{ form.replace() }}
+            {{ form.dictionary() }}
+            {{ form.addWord() }}
+        {% else %}
+            <span>Please, for adding words create a </span>
+            <a href="{{ url_for('addDictionary') }}">
+                dictionary.
+            </a>
+        {% endif %}
     </form>
+    
+    {% if form.errors %}
+        {% for field in form %}
+            <ul>
+                {% for error in field.errors %}
+                    <li>
+                        {{ field.label }}:
+                        {{ error }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endif %}
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
 {% endblock %}
