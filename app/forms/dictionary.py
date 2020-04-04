@@ -19,7 +19,7 @@ class DictionaryFullForm(DictionaryBaseForm):
     description = StringField(
         'Description',
         validators=[
-            Regexp('^[a-zA-Zа-яА-ЯёЁ\s]+$',
+            Regexp('^[a-zA-Zа-яА-ЯёЁ\s]*$',
                    message='Latin and russian letters and spaces only.')
         ],
         render_kw={

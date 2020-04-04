@@ -3,8 +3,9 @@ from flask import request, redirect, render_template, url_for, flash
 from .model.smart_dictionary import SmartDictionary
 from .forms.word import AddWordForm, AddWordSelectForm, ChangeWordForm, DeleteWordForm
 from .forms.dictionary import AddDictionaryForm, DeleteDictionaryForm, ChangeDictionaryForm
+from .forms.test import TestStartForm, TestFinishForm
 from .sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
-from .functions import flashErrors
+import app.functions as functions
 
 smartDict = SmartDictionary()
 
@@ -48,7 +49,7 @@ def addWord(wrapped=False):
         return wrapped if wrapped else redirect(url_for('addWord'))
 
     else:  # form not valid
-        flashErrors(form)
+        functions.flashErrors(form)
 
     return wrapped if wrapped else render_template('add-word.html', form=form)
 
@@ -99,7 +100,7 @@ def addDictionary():
         except DictionaryAlreadyExistError:
             flash('Dictionary {} already exist!'.format(name))
     else:  # form not valid
-        flashErrors(form)
+        functions.flashErrors(form)
 
     return render_template('add-dictionary.html', form=form)
 
@@ -120,7 +121,7 @@ def deleteDictionary():
             flash('Dictionary {} doesn\'t exist!'.format(name))
 
     else:  # form not valid
-        flashErrors(form)
+        functions.flashErrors(form)
 
     return redirect(request.referrer)
 
@@ -145,7 +146,7 @@ def changeDictionary():
             flash('Dictionary {} doesn\'t exist!'.format(old))
 
     else:  # form not valid
-        flashErrors(form)
+        functions.flashErrors(form)
 
     return redirect(request.referrer)
 
@@ -179,7 +180,7 @@ def changeWord():
             flash('Word {} doesn\'t exist!'.format(old))
 
     else:  # form not valid
-        flashErrors(form)
+        functions.flashErrors(form)
 
     return redirect(request.referrer)
 
@@ -203,6 +204,50 @@ def deleteWord():
             flash('Word {} doesn\'t exist!'.format(original))
 
     else:  # form not valid
-        flashErrors(form)
+        functions.flashErrors(form)
 
     return redirect(request.referrer)
+
+
+@app.route('/test/start', methods=['POST', 'GET'])
+def startTest():
+    form = TestStartForm()
+    form.dictionary.choices = functions.choicesForSelect(smartDict)
+
+    if form.validate_on_submit():
+        dictionary = form.dictionary.data
+        return redirect(url_for('test', dictionary=dictionary))
+    else:  # form not valid
+        functions.flashErrors(form)
+
+    return render_template('start-test.html', form=form)
+
+
+@app.route('/test', methods=['POST', 'GET'])
+def test():
+    form = TestFinishForm()
+    dictionary = request.args.get('dictionary')
+    answers = []
+
+    try:
+        # questions = smartDict.testQuestions(dictionary)
+        questions = ['asd', 'qwe', 'lol']
+    except DictionaryNotExistError:
+        flash('Dictionary {} doesn\'t exist!'.format(dictionary))
+        return redirect(url_for('startTest'))
+
+    if form.validate_on_submit():
+        answers = form.answers.data
+        forCheck = dict(zip(questions, answers))
+        result = smartDict.testResults(forCheck)
+        return render_template('finish-test.html', result=result)
+    else:
+        functions.flashErrors(form)
+
+    return render_template('test.html', form=form, questions=questions)
+
+
+@app.route('/test/finish', methods=['POST', 'GET'])
+def finishTest():
+    pass
+    return render_template('finish-test.html')

@@ -5,3 +5,8 @@
     <title>{% block title %}Smart Dictinary{% endblock %}</title>
 </head>
 <body>
+<nav>
+    <a href="{{ url_for('addWord') }}">Add word</a>
+    <a href="{{ url_for('dictionaries') }}">Dictionaries</a>
+    <a href="{{ url_for('startTest') }}">Test</a>
+</nav>

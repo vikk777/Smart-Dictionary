@@ -22,27 +22,6 @@
             </a>
         {% endif %}
     </form>
-    
-    {% if form.errors %}
-        {% for field in form %}
-            <ul>
-                {% for error in field.errors %}
-                    <li>
-                        {{ field.label }}:
-                        {{ error }}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endfor %}
-    {% endif %}
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    {{ macros.flashed_messages() }}
 {% endblock %}

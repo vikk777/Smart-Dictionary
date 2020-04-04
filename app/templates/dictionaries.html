@@ -17,15 +17,7 @@
         dict[1] - description
     #}
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-                {% for message in messages %}
-                        <p>
-                            {{ message }}
-                        </p>
-                {% endfor %}
-        {% endif %}
-    {% endwith %}
+    {{ macros.flashed_messages() }}
 
     {% for dict in dicts %}
         <div>

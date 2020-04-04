@@ -1,15 +1,16 @@
 {% extends "base-page.html" %}
 
 {% block title %}
-    Add dictionary
+    Finish test
 {% endblock %}
 
 {% block content %}
-    <form action="" method="post">
+Test finished with {{ result }}
+{#     <form action="{{ url_for('finishTest') }}" method="post">
         {% for field in form %}
             {{ field }}
         {% endfor %}
     </form>
-
-    {{ macros.flashed_messages() }}
+ #}
+    {# {{ macros.flashed_messages() }} #}
 {% endblock %}
