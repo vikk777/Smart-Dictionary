@@ -230,8 +230,7 @@ def test():
     answers = []
 
     try:
-        # questions = smartDict.testQuestions(dictionary)
-        questions = ['asd', 'qwe', 'lol']
+        questions = smartDict.testQuestions(dictionary)
     except DictionaryNotExistError:
         flash('Dictionary {} doesn\'t exist!'.format(dictionary))
         return redirect(url_for('startTest'))
@@ -239,7 +238,7 @@ def test():
     if form.validate_on_submit():
         answers = form.answers.data
         forCheck = dict(zip(questions, answers))
-        result = smartDict.testResults(forCheck)
+        result = smartDict.testResult(forCheck)
         return render_template('finish-test.html', result=result)
     else:
         functions.flashErrors(form)

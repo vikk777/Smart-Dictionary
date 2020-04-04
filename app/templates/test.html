@@ -16,6 +16,11 @@
             {% endfor %}
             {{ form.finishTest() }}
         </form>
+        {% else %}
+            <p>
+                You have no words in your dictionary.
+                <a href="{{ url_for('addWord') }}">Add</a> them.
+            </p>
     {% endif %}
 
     {# {% if answers %}
