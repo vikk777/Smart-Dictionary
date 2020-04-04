@@ -1,5 +1,6 @@
 from .word import Word
 from .dictionary import Dictionary
+from .test_manager import TestManager
 from ..sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
 import re
 
@@ -7,10 +8,12 @@ import re
 class SmartDictionary(object):
     def __init__(self):
         self._dicts = dict()
+        self._testManager = TestManager()
         # Change name!
         self.addDictionary('Dict', 'Default dictionary')
 
     def words(self, name):
+        # Optimization! wordsDict(name)
         if self.isDictExist(name):
             dict_words = list()
             # List all objects "Word" of this dictionary
@@ -147,3 +150,36 @@ class SmartDictionary(object):
 
     def trim(self, string):
         return re.sub('\s\s+', ' ', string.strip())
+
+    def wordsDict(self, name):
+        if self.isDictExist(name):
+            dict_words = dict()
+            words = list(self._dicts.get(name).words().values())
+            for i in range(len(words)):
+                original = words[i].original()
+                translate = words[i].translate()
+                dict_words.update({original: translate})
+            return dict_words
+        else:
+            raise DictionaryNotExistError
+
+    def allWords(self):
+        all_words = dict()
+        for name in self._dicts.keys():
+            all_words.update(self.wordsDict(name))
+        return all_words
+
+    def testQuestions(self, name):
+        if bool(name) is False:
+            self._testManager.setQuestions(self.allWords())
+            return list(self.allWords().keys())
+        elif self.isDictExist(name):
+            self._testManager.setQuestions(self.wordsDict(name))
+            return list(self.wordsDict(name).keys())
+        else:
+            raise DictionaryNotExistError
+
+    def testResult(self, answers):
+        # Checks!!!
+        self._testManager.setAnswers(answers)
+        return self._testManager.check()
