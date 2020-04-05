@@ -25,6 +25,7 @@ class Dictionary():
     def addWord(self, word):
         if word.original() in self._words.keys():
             del self._words[word.original()]
+
         self._words[word.original()] = word
 
     def deleteWord(self, word):
@@ -33,4 +34,5 @@ class Dictionary():
     def changeWord(self, old, new):
         if old != new.original():
             del self._words[old]
+
         self.addWord(new)
