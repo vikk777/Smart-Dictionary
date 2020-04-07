@@ -8,7 +8,9 @@ class TestStartForm(FlaskForm):
     dictionary = SelectField()
 
 
-class TestFinishForm(FlaskForm):
-    answers = FieldList(StringField(validators=[DataRequired()]))
+class TestNextForm(FlaskForm):
+    # answers = FieldList(StringField(validators=[DataRequired()]))
     # questions = FieldList(HiddenField())
-    finishTest = SubmitField('Finish test')
+    question = HiddenField()
+    answers = StringField(validators=[DataRequired()])
+    nextQuestion = SubmitField('Next')

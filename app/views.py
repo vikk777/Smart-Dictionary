@@ -3,9 +3,10 @@ from flask import request, redirect, render_template, url_for, flash
 from .model.smart_dictionary import SmartDictionary
 from .forms.word import AddWordForm, AddWordSelectForm, ChangeWordForm, DeleteWordForm
 from .forms.dictionary import AddDictionaryForm, DeleteDictionaryForm, ChangeDictionaryForm
-from .forms.test import TestStartForm, TestFinishForm
+from .forms.test import TestStartForm, TestNextForm, TestFinishForm
 from .sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
 import app.functions as functions
+import time
 
 smartDict = SmartDictionary()
 
@@ -36,10 +37,11 @@ def addWord(wrapped=False):
         translate = form.translate.data
         transcription = form.transcription.data
         replace = form.replace.data
+        createTime = time.time()
 
         try:
             smartDict.addWord(dictionary, original,
-                              translate, transcription, replace)
+                              translate, transcription, replace, createTime)
             flash('Word {0} was added to {1}.'.format(
                 original, dictionary))
 
@@ -167,10 +169,11 @@ def changeWord():
         translate = form.translate.data
         transcription = form.transcription.data
         dictionary = form.dictionary.data
+        updateTime = time.time()
 
         try:
             smartDict.changeWord(dictionary, old, original,
-                                 translate, transcription)
+                                 translate, transcription, updateTime)
             flash('Word {} was changed.'.format(old))
             return redirect(url_for('dictionaries', view=dictionary))
 
@@ -215,8 +218,12 @@ def startTest():
     form.dictionary.choices = functions.choicesForSelect(smartDict)
 
     if form.validate_on_submit():
-        dictionary = form.dictionary.data
-        return redirect(url_for('test', dictionary=dictionary))
+        try:
+            dictionary = form.dictionary.data
+            smartDict.testInit(dictionary)
+            return redirect(url_for('test', dictionary=dictionary))
+        except DictionaryNotExistError:
+            flash('Dictionary {} doesn\'t exist!'.format(dictionary))
     else:  # form not valid
         functions.flashErrors(form)
 
@@ -225,25 +232,26 @@ def startTest():
 
 @app.route('/test', methods=['POST', 'GET'])
 def test():
-    form = TestFinishForm()
-    dictionary = request.args.get('dictionary')
-    answers = []
+    form = TestNextForm()
+    # dictionary = request.args.get('dictionary')
 
-    try:
-        questions = smartDict.testQuestions(dictionary)
-    except DictionaryNotExistError:
-        flash('Dictionary {} doesn\'t exist!'.format(dictionary))
-        return redirect(url_for('startTest'))
-
+    # try:
+    # except:
     if form.validate_on_submit():
-        answers = form.answers.data
-        forCheck = dict(zip(questions, answers))
-        result = smartDict.testResult(forCheck)
-        return render_template('finish-test.html', result=result)
+        question = form.question.data
+        answer = form.answer.data
+        # forCheck = dict(zip(question, answer))
+        smartDict.addAnswer(tuple(question, answer))
     else:
         functions.flashErrors(form)
 
-    return render_template('test.html', form=form, questions=questions)
+    question = smartDict.nextQuestion()
+
+    if not question:
+        result = smartDict.testResult()
+        return render_template('finish-test.html', result=result)
+
+    return render_template('test.html', form=form, question=question)
 
 
 @app.route('/test/finish', methods=['POST', 'GET'])

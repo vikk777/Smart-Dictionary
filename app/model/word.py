@@ -1,8 +1,9 @@
 class Word():
-    def __init__(self, original, translate, transcription):
+    def __init__(self, original, translate, transcription, updateTime):
         self._original = original
         self._translate = translate
         self._transcription = transcription
+        self._updateTime = updateTime
 
     def setOriginal(self, original):
         self._original = original
@@ -13,6 +14,9 @@ class Word():
     def setTranscription(self, transcription):
         self._transcription = transcription
 
+    def setUpdateTime(self, updateTime):
+        self._updateTime = updateTime
+
     def original(self):
         return self._original
 
@@ -21,3 +25,6 @@ class Word():
 
     def transcription(self):
         return self._transcription
+
+    def updateTime(self):
+        return self._updateTime

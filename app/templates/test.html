@@ -5,16 +5,18 @@
 {% endblock %}
 
 {% block content %}
-    {% if questions %}
+    {% if question %}
         <form action="{# url_for('finishTest') #}" method="post">
             {{ form.csrf_token }}
-            {% for question in questions %}
-                <p>
-                    {{ question }}
-                    {{ form.answers.append_entry() }}
-                </p>
-            {% endfor %}
-            {{ form.finishTest() }}
+            {# {% for question in question %} #}
+            <p>
+                {{ question }}
+                {# {{ form.answers.append_entry() }} #}
+                {{ form.question() }} -
+                {{ form.answer() }}
+            </p>
+            {# {% endfor %} #}
+            {{ form.nextQuestion() }}
         </form>
         {% else %}
             <p>

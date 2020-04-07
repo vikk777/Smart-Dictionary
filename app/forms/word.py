@@ -21,7 +21,7 @@ class WordFullForm(WordBaseForm):
         'Translate',
         validators=[
             DataRequired(),
-            Regexp('^[А-Яа-яЁё\s]+$',
+            Regexp('^[А-Яа-яЁё\s,]+$',
                    message='Russian letters and spaces only.')
         ],
         render_kw={'placeholder': 'translate'})
