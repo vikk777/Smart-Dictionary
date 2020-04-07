@@ -117,7 +117,8 @@ class SmartDictionary(object):
         else:
             raise DictionaryNotExistError
 
-    def addWord(self, name, original, translate, transcrip, replace=False):
+    def addWord(self, name, original, translate, transcrip, time, replace=False):
+        # Added time - float
         original = self.trim(original)
         translate = self.trim(translate)
         transcrip = self.trim(transcrip)
@@ -134,11 +135,12 @@ class SmartDictionary(object):
                         transcrip = word.transcription() + ', ' + transcrip
 
                 word.setTranslate(translate)
+                word.setUpdateTime(time)
                 if transcrip:
                     word.setTranscription(transcrip)
 
             else:
-                new_word = Word(original, translate, transcrip)
+                new_word = Word(original, translate, transcrip, time)
                 self._dicts[name].addWord(new_word)
 
             return True
@@ -157,13 +159,14 @@ class SmartDictionary(object):
         else:
             raise WordNotExistError
 
-    def changeWord(self, name, old_orig, orig, translate, transcription):
+    def changeWord(self, name, old_orig, orig, translate, transcription, time):
+        # Added time - float
         orig = self.trim(orig)
         translate = self.trim(translate)
         transcription = self.trim(transcription)
 
         if self.isDictExist(name) and self.isWordExist(name, old_orig):
-            new_word = Word(orig, translate, transcription)
+            new_word = Word(orig, translate, transcription, time)
             self._dicts[name].changeWord(old_orig, new_word)
             return True
 
@@ -183,7 +186,8 @@ class SmartDictionary(object):
         return original in self._dicts.get(name).words()
 
     def trim(self, string):
-        return re.sub('\s\s+', ' ', string.strip())
+        string = re.sub('\s\s+', ' ', string.strip())
+        return re.sub(',', ', ', string)
 
     def wordsDict(self, name):
         if self.isDictExist(name):
@@ -208,24 +212,44 @@ class SmartDictionary(object):
 
         return all_words
 
-    def testQuestions(self, name):
+    # def wrongAnswers(self):
+    #     return self._testManager.wrongAnswers()
+
+    def testInit(self, name):
         if not name:
-            self._testManager.setQuestions(self.allWords())
-            return list(self.allWords().keys())
+            ini_dict = self.allWords()
 
         elif self.isDictExist(name):
-            self._testManager.setQuestions(self.wordsDict(name))
-            return list(self.wordsDict(name).keys())
+            ini_dict = self.wordsDict(name)
 
         else:
             raise DictionaryNotExistError
 
-    def testResult(self, answers):
-        # Checks!!!
-        for answer in answers:
-            answers[answer] = self.trim(answers.get(answer))
-        self._testManager.setAnswers(answers)
-        return self._testManager.check()
+        # inv_dict = dict(map(reversed, ini_dict.items()))
+        inv_dict = {v.split(', ')[0]: k for k, v in ini_dict.items()}
+        ini_dict.update(inv_dict)
 
-    # def wrongAnswers(self):
-    #     return self._testManager.wrongAnswers()
+        self._testManager.setQuestions(ini_dict)
+        self._testManager.setTempQuestions(list(ini_dict.keys()))
+        return True
+
+    def nextQuestion(self):
+        questions = self._testManager.tempQuestions()
+
+        if questions:
+            question = questions.pop(0).split(', ')
+            self._testManager.setTempQuestions(questions)
+            return question
+
+        else:
+            return ''
+
+    def addAnswer(self, answer):
+        # answer - tuple()
+        answ = list(answer)
+        answ = (self.trim(answ[0]), self.trim(answ[1]))
+
+        self._testManager.setAnswers(answ)
+
+    def testResult(self):
+        return self._testManager.check()

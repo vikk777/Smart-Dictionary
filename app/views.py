@@ -3,7 +3,7 @@ from flask import request, redirect, render_template, url_for, flash
 from .model.smart_dictionary import SmartDictionary
 from .forms.word import AddWordForm, AddWordSelectForm, ChangeWordForm, DeleteWordForm
 from .forms.dictionary import AddDictionaryForm, DeleteDictionaryForm, ChangeDictionaryForm
-from .forms.test import TestStartForm, TestNextForm, TestFinishForm
+from .forms.test import TestStartForm, TestNextForm
 from .sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
 import app.functions as functions
 import time
