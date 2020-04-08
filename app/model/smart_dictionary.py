@@ -3,10 +3,7 @@ from .dictionary import Dictionary
 from .test_manager import TestManager
 from ..sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
 import re
-
-WRONG_DICT = '__wrong__'
-ALL_DICTS = '__all__'
-
+import app.consts as consts
 
 class SmartDictionary(object):
     def __init__(self):
@@ -216,10 +213,10 @@ class SmartDictionary(object):
         return all_words
 
     def testInit(self, name):
-        if name == WRONG_DICT:
+        if name == consts.MISTAKE_DICT:
             ini_dict = self._testManager.mistakesAnswers()
 
-        elif name == ALL_DICTS:
+        elif name == consts.ALL_DICTS:
             ini_dict = self.allWords()
             # Reversed ini_dict
             inv_dict = {v.split(', ')[0]: k for k, v in ini_dict.items()}
@@ -264,7 +261,4 @@ class SmartDictionary(object):
         return self._testManager.check()
 
     def haveMistakes(self):
-        if self._testManager.mistakesAnswers():
-            return True
-        else:
-            return False
+        return True if self._testManager.mistakesAnswers() else False

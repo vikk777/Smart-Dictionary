@@ -7,6 +7,7 @@ from .forms.test import TestStartForm, TestNextForm, CorrectMistakesForm
 from .sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
 import app.functions as functions
 import time
+import app.consts as consts
 
 smartDict = SmartDictionary()
 
@@ -232,7 +233,7 @@ def startTest():
             functions.flashErrors(forms['startTest'])
 
     if 'correctMistakes' in request.form:
-        smartDict.testInit('__mistakes__')
+        smartDict.testInit(consts.MISTAKE_DICT)
         return redirect(url_for('test'))
 
     return render_template('start-test.html', forms=forms)

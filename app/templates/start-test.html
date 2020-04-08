@@ -18,11 +18,13 @@
         </p>
     {% endif %}
 
-    {% if forms['correctMistakes'] %}
-        {% for field in forms['correctMistakes'] %}
-            {{ field }}
-        {% endfor %}
-    {% endif %}
+    <form action="" method="post">
+        {% if forms['correctMistakes'] %}
+            {% for field in forms['correctMistakes'] %}
+                {{ field }}
+            {% endfor %}
+        {% endif %}
+    </form>
 
     {{ macros.flashed_messages() }}
 {% endblock %}
