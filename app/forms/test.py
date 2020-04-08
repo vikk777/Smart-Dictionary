@@ -9,8 +9,6 @@ class TestStartForm(FlaskForm):
 
 
 class TestNextForm(FlaskForm):
-    # answers = FieldList(StringField(validators=[DataRequired()]))
-    # questions = FieldList(HiddenField())
     question = HiddenField()
-    answers = StringField(validators=[DataRequired()])
+    answer = StringField(default='', validators=[DataRequired()])
     nextQuestion = SubmitField('Next')

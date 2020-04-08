@@ -231,13 +231,17 @@ class SmartDictionary(object):
 
         self._testManager.setQuestions(ini_dict)
         self._testManager.setTempQuestions(list(ini_dict.keys()))
+        print(self._testManager.tempQuestions())
         return True
+
+    def testIsInit(self):
+        return True if self._testManager._questions else False
 
     def nextQuestion(self):
         questions = self._testManager.tempQuestions()
 
         if questions:
-            question = questions.pop(0).split(', ')
+            question = questions.pop(0)
             self._testManager.setTempQuestions(questions)
             return question
 

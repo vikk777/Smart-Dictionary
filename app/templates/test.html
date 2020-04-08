@@ -8,28 +8,14 @@
     {% if question %}
         <form action="{# url_for('finishTest') #}" method="post">
             {{ form.csrf_token }}
-            {# {% for question in question %} #}
             <p>
                 {{ question }}
-                {# {{ form.answers.append_entry() }} #}
-                {{ form.question() }} -
+                {{ form.question(value=question) }} -
                 {{ form.answer() }}
             </p>
-            {# {% endfor %} #}
             {{ form.nextQuestion() }}
         </form>
-        {% else %}
-            <p>
-                You have no words in your dictionary.
-                <a href="{{ url_for('addWord') }}">Add</a> them.
-            </p>
     {% endif %}
-
-    {# {% if answers %}
-        {% for answer in answers %}
-            <p>{{ answer }}</p>
-        {% endfor %}
-    {% endif %} #}
 
     {{ macros.flashed_messages() }}
 {% endblock %}

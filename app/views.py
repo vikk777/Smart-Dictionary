@@ -221,7 +221,7 @@ def startTest():
         try:
             dictionary = form.dictionary.data
             smartDict.testInit(dictionary)
-            return redirect(url_for('test', dictionary=dictionary))
+            return redirect(url_for('test'))
         except DictionaryNotExistError:
             flash('Dictionary {} doesn\'t exist!'.format(dictionary))
     else:  # form not valid
@@ -233,23 +233,24 @@ def startTest():
 @app.route('/test', methods=['POST', 'GET'])
 def test():
     form = TestNextForm()
-    # dictionary = request.args.get('dictionary')
+    # if there are errors, last question will remains
+    question = form.question.data
 
-    # try:
-    # except:
-    if form.validate_on_submit():
-        question = form.question.data
-        answer = form.answer.data
-        # forCheck = dict(zip(question, answer))
-        smartDict.addAnswer(tuple(question, answer))
+    if smartDict.testIsInit():
+        if form.validate_on_submit():
+            answer = form.answer.data
+            smartDict.addAnswer((question, answer))
+        else:
+            functions.flashErrors(form)
+
+        if not form.errors:
+            question = smartDict.nextQuestion()
+
+            if not question:
+                result = smartDict.testResult()
+            return render_template('finish-test.html', result=result)
     else:
-        functions.flashErrors(form)
-
-    question = smartDict.nextQuestion()
-
-    if not question:
-        result = smartDict.testResult()
-        return render_template('finish-test.html', result=result)
+        flash('Please, <a href="{0}">choice the dictionary</a> to pass the test.'.format(url_for('startTest')))
 
     return render_template('test.html', form=form, question=question)
 

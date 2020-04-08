@@ -17,6 +17,7 @@ def choicesForSelect(smartDictionary):
 
     # take list of touples (name, name)
     # for <select>
-    for touple in dictionary.dictionaries():
-        choices.append((touple[0], touple[0]))
+    for item in dictionary.dictionaries():
+        if dictionary.quantity(item[0]):
+            choices.append((item[0], item[0]))
     return choices
