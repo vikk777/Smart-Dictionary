@@ -248,7 +248,7 @@ def test():
 
             if not question:
                 result = smartDict.testResult()
-            return render_template('finish-test.html', result=result)
+                return render_template('finish-test.html', result=result)
     else:
         flash('Please, <a href="{0}">choice the dictionary</a> to pass the test.'.format(url_for('startTest')))
 
