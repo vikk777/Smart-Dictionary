@@ -3,7 +3,7 @@ class TestManager(object):
         self._questions = dict()
         self._answers = dict()
         self._tempQuestions = list()
-        self._wrongAnswers = dict()
+        self._mistakesAnswers = dict()
 
     def setQuestions(self, questions):
         self._questions = questions
@@ -17,8 +17,8 @@ class TestManager(object):
     def tempQuestions(self):
         return self._tempQuestions
 
-    # def wrongAnswers(self):
-    #     return self._wrongAnswers
+    def mistakesAnswers(self):
+        return self._mistakesAnswers
 
     def check(self):
         correct = 0
@@ -29,9 +29,14 @@ class TestManager(object):
             if self._answers.get(answer) in self._questions.get(answer).split(', '):
                 correct = correct + 1
 
+                if answer in self._mistakesAnswers:
+                    del self._mistakesAnswers[answer]
+
             else:
                 incorrect = incorrect + 1
-                self._wrongAnswers[answer] = self._questions.get(answer)
+
+                if not (answer in self._mistakesAnswers):
+                    self._mistakesAnswers[answer] = self._questions.get(answer)
 
         # return (correct, incorrect)
         return correct

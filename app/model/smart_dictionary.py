@@ -4,6 +4,9 @@ from .test_manager import TestManager
 from ..sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
 import re
 
+WRONG_DICT = '__wrong__'
+ALL_DICTS = '__all__'
+
 
 class SmartDictionary(object):
     def __init__(self):
@@ -212,26 +215,28 @@ class SmartDictionary(object):
 
         return all_words
 
-    # def wrongAnswers(self):
-    #     return self._testManager.wrongAnswers()
-
     def testInit(self, name):
-        if not name:
+        if name == WRONG_DICT:
+            ini_dict = self._testManager.mistakesAnswers()
+
+        elif name == ALL_DICTS:
             ini_dict = self.allWords()
+            # Reversed ini_dict
+            inv_dict = {v.split(', ')[0]: k for k, v in ini_dict.items()}
+            ini_dict.update(inv_dict)
 
         elif self.isDictExist(name):
             ini_dict = self.wordsDict(name)
+            # Reversed ini_dict
+            inv_dict = {v.split(', ')[0]: k for k, v in ini_dict.items()}
+            ini_dict.update(inv_dict)
 
         else:
             raise DictionaryNotExistError
 
-        # inv_dict = dict(map(reversed, ini_dict.items()))
-        inv_dict = {v.split(', ')[0]: k for k, v in ini_dict.items()}
-        ini_dict.update(inv_dict)
-
         self._testManager.setQuestions(ini_dict)
         self._testManager.setTempQuestions(list(ini_dict.keys()))
-        print(self._testManager.tempQuestions())
+        # print(self._testManager.tempQuestions())
         return True
 
     def testIsInit(self):
@@ -257,3 +262,9 @@ class SmartDictionary(object):
 
     def testResult(self):
         return self._testManager.check()
+
+    def haveMistakes(self):
+        if self._testManager.mistakesAnswers():
+            return True
+        else:
+            return False
