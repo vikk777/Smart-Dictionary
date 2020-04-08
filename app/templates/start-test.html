@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block content %}
-    {% if form.dictionary.choices %}
+    {% if forms['startTest'].dictionary.choices %}
         <form action="{# url_for('test') #}" method="post">
-            {% for field in form %}
+            {% for field in forms['startTest'] %}
                 {{ field }}
             {% endfor %}
         </form>
@@ -16,6 +16,12 @@
             You have no words in your dictionaries.
             <a href="{{ url_for('addWord') }}">Add</a> them.
         </p>
+    {% endif %}
+
+    {% if forms['correctMistakes'] %}
+        {% for field in forms['correctMistakes'] %}
+            {{ field }}
+        {% endfor %}
     {% endif %}
 
     {{ macros.flashed_messages() }}

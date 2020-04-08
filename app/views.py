@@ -3,7 +3,7 @@ from flask import request, redirect, render_template, url_for, flash
 from .model.smart_dictionary import SmartDictionary
 from .forms.word import AddWordForm, AddWordSelectForm, ChangeWordForm, DeleteWordForm
 from .forms.dictionary import AddDictionaryForm, DeleteDictionaryForm, ChangeDictionaryForm
-from .forms.test import TestStartForm, TestNextForm
+from .forms.test import TestStartForm, TestNextForm, CorrectMistakesForm
 from .sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
 import app.functions as functions
 import time
@@ -41,7 +41,7 @@ def addWord(wrapped=False):
 
         try:
             smartDict.addWord(dictionary, original,
-                              translate, transcription, replace, createTime)
+                              translate, transcription, createTime, replace)
             flash('Word {0} was added to {1}.'.format(
                 original, dictionary))
 
@@ -214,20 +214,28 @@ def deleteWord():
 
 @app.route('/test/start', methods=['POST', 'GET'])
 def startTest():
-    form = TestStartForm()
-    form.dictionary.choices = functions.choicesForSelect(smartDict)
+    forms = dict()
+    forms['startTest'] = TestStartForm()
+    forms['startTest'].dictionary.choices = functions.choicesForSelect(smartDict)
+    if smartDict.haveMistakes():
+        forms['correctMistakes'] = CorrectMistakesForm()
 
-    if form.validate_on_submit():
-        try:
-            dictionary = form.dictionary.data
-            smartDict.testInit(dictionary)
-            return redirect(url_for('test'))
-        except DictionaryNotExistError:
-            flash('Dictionary {} doesn\'t exist!'.format(dictionary))
-    else:  # form not valid
-        functions.flashErrors(form)
+    if 'startTest' in request.form:
+        if forms['startTest'].validate_on_submit():
+            try:
+                dictionary = forms['startTest'].dictionary.data
+                smartDict.testInit(dictionary)
+                return redirect(url_for('test'))
+            except DictionaryNotExistError:
+                flash('Dictionary {} doesn\'t exist!'.format(dictionary))
+        else:  # form not valid
+            functions.flashErrors(forms['startTest'])
 
-    return render_template('start-test.html', form=form)
+    if 'correctMistakes' in request.form:
+        smartDict.testInit('__mistakes__')
+        return redirect(url_for('test'))
+
+    return render_template('start-test.html', forms=forms)
 
 
 @app.route('/test', methods=['POST', 'GET'])

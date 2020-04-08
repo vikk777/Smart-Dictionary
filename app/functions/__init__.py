@@ -20,4 +20,9 @@ def choicesForSelect(smartDictionary):
     for item in dictionary.dictionaries():
         if dictionary.quantity(item[0]):
             choices.append((item[0], item[0]))
+
+    # Add "All" option, if dictionaries more then 1
+    if len(choices) > 1:
+        choices.append(('__all__', 'All'))
+
     return choices
