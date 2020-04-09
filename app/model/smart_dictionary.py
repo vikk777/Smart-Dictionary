@@ -5,6 +5,7 @@ from ..sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, Wor
 import re
 import app.consts as consts
 
+
 class SmartDictionary(object):
     def __init__(self):
         self._dicts = dict()
@@ -14,37 +15,27 @@ class SmartDictionary(object):
         self.addDictionary('Dict', 'Default dictionary')
 
     def words(self, name):
-        # Optimization! wordsDict(name)
         if self.isDictExist(name):
             dict_words = list()
             # List all objects "Word" of this dictionary
             words = list(self._dicts.get(name).words().values())
-
             for word in words:
-                original = word.original()
-                translate = word.translate()
-                transcription = word.transcription()
-                dict_words.append((original, translate, transcription))
-
+                dict_words.append({'original': word.original(),
+                                   'translate': word.word.translate(),
+                                   'transcription': word.transcription(),
+                                   'updateTime': word.updateTime()})
             return dict_words
 
         else:
             raise DictionaryNotExistError
 
-    def wordsDict(self, name):
-        if self.isDictExist(name):
-            dict_words = dict()
-            words = list(self._dicts.get(name).words().values())
+    def allWords(self):
+        all_words = list()
 
-            for word in words:
-                original = word.original()
-                translate = word.translate()
-                dict_words.update({original: translate})
+        for name in self._dicts:
+            all_words.extend(self.words(name))
 
-            return dict_words
-
-        else:
-            raise DictionaryNotExistError
+        return all_words
 
     def dictionary(self, name):
         if self.isDictExist(name):
@@ -204,37 +195,30 @@ class SmartDictionary(object):
         string = re.sub('\s\s+', ' ', string.strip())
         return re.sub(',', ', ', string)
 
-    def allWords(self):
-        all_words = dict()
-
-        for name in self._dicts:
-            all_words.update(self.wordsDict(name))
-
-        return all_words
-
     def testInit(self, name):
         if name == consts.MISTAKE_DICT:
             ini_dict = self._testManager.mistakesAnswers()
 
-        elif name == consts.ALL_DICTS:
-            ini_dict = self.allWords()
-            # Reversed ini_dict
-            inv_dict = {v.split(', ')[0]: k for k, v in ini_dict.items()}
-            ini_dict.update(inv_dict)
-
-        elif self.isDictExist(name):
-            ini_dict = self.wordsDict(name)
-            # Reversed ini_dict
-            inv_dict = {v.split(', ')[0]: k for k, v in ini_dict.items()}
-            ini_dict.update(inv_dict)
-
         else:
-            raise DictionaryNotExistError
+            if name == consts.ALL_DICTS:
+                words = self.allWords()
+            elif self.isDictExist(name):
+                words = self.words()
+            else:
+                raise DictionaryNotExistError
 
-        self._testManager.setQuestions(ini_dict)
-        self._testManager.setTempQuestions(list(ini_dict.keys()))
-        # print(self._testManager.tempQuestions())
-        return True
+            ini_dict = dict()
+
+            for word in words:
+                ini_dict.update({word.get('original'): word.get('translate')})
+
+            for word in words:
+                ini_dict.update({word.get('translate').split(', ')[0]: word.get('original')})
+
+            self._testManager.setQuestions(ini_dict)
+            self._testManager.setTempQuestions(list(ini_dict.keys()))
+
+            return True
 
     def testIsInit(self):
         return True if self._testManager._questions else False
