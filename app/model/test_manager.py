@@ -23,20 +23,28 @@ class TestManager(object):
     def check(self):
         correct = 0
         incorrect = 0
+        rights = list()
+        wrongs = list()
 
-        for answer in self._questions:
-
-            if self._answers.get(answer) in self._questions.get(answer).split(', '):
-                correct = correct + 1
-
-                if answer in self._mistakesAnswers:
-                    del self._mistakesAnswers[answer]
-
+        for question in self._questions:
+            if self._answers.get(question) in self._questions.get(question).split(', '):
+                correct += 1
+                rights.append(question)
             else:
-                incorrect = incorrect + 1
+                incorrect += 1
+                wrongs.append(question)
 
-                if not (answer in self._mistakesAnswers):
-                    self._mistakesAnswers[answer] = self._questions.get(answer)
+        for right in rights:
+            if right in self._mistakesAnswers:
+                del self._mistakesAnswers[right]
+
+        for wrong in wrongs:
+            if wrong not in self._mistakesAnswers:
+                self._mistakesAnswers.update({wrong:self._questions.get(wrong)})
+
+        self._questions.clear()
+        self._answers.clear()
+        self._tempQuestions.clear()
 
         # return (correct, incorrect)
         return correct

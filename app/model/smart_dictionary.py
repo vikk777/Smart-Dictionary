@@ -31,6 +31,21 @@ class SmartDictionary(object):
         else:
             raise DictionaryNotExistError
 
+    def wordsDict(self, name):
+        if self.isDictExist(name):
+            dict_words = dict()
+            words = list(self._dicts.get(name).words().values())
+
+            for word in words:
+                original = word.original()
+                translate = word.translate()
+                dict_words.update({original: translate})
+
+            return dict_words
+
+        else:
+            raise DictionaryNotExistError
+
     def dictionary(self, name):
         if self.isDictExist(name):
             dict_info = self._dicts.get(name)
@@ -188,21 +203,6 @@ class SmartDictionary(object):
     def trim(self, string):
         string = re.sub('\s\s+', ' ', string.strip())
         return re.sub(',', ', ', string)
-
-    def wordsDict(self, name):
-        if self.isDictExist(name):
-            dict_words = dict()
-            words = list(self._dicts.get(name).words().values())
-
-            for word in words:
-                original = word.original()
-                translate = word.translate()
-                dict_words.update({original: translate})
-
-            return dict_words
-
-        else:
-            raise DictionaryNotExistError
 
     def allWords(self):
         all_words = dict()
