@@ -215,10 +215,10 @@ class SmartDictionary(object):
             for word in words:
                 ini_dict.update({word.get('translate').split(', ')[0]: word.get('original')})
 
-            self._testManager.setQuestions(ini_dict)
-            self._testManager.setTempQuestions(list(ini_dict.keys()))
+        self._testManager.setQuestions(ini_dict)
+        self._testManager.setTempQuestions(list(ini_dict.keys()))
 
-            return True
+        return True
 
     def testIsInit(self):
         return True if self._testManager._questions else False
