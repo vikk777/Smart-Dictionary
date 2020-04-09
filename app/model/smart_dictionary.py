@@ -4,6 +4,7 @@ from .test_manager import TestManager
 from ..sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
 import re
 import app.consts as consts
+from  datetime import date
 
 
 class SmartDictionary(object):
@@ -21,7 +22,7 @@ class SmartDictionary(object):
             words = list(self._dicts.get(name).words().values())
             for word in words:
                 dict_words.append({'original': word.original(),
-                                   'translate': word.word.translate(),
+                                   'translate': word.translate(),
                                    'transcription': word.transcription(),
                                    'updateTime': word.updateTime()})
             return dict_words
@@ -51,9 +52,6 @@ class SmartDictionary(object):
             dict_info.append(self.dictionary(name))
 
         return dict_info
-
-    # def isEmpty(self):
-    #     return not bool(self._dicts)
 
     def quantity(self, name):
         if self.isDictExist(name):
@@ -195,28 +193,42 @@ class SmartDictionary(object):
         string = re.sub('\s\s+', ' ', string.strip())
         return re.sub(',', ', ', string)
 
-    def testInit(self, name):
+    def testInit(self, name, period='-1'):
         if name == consts.MISTAKE_DICT:
-            ini_dict = self._testManager.mistakesAnswers()
+            initDict = dict()
+            for questions, answer in (self._testManager.mistakesAnswers()).items():
+                initDict.update({questions: answer})
 
         else:
             if name == consts.ALL_DICTS:
                 words = self.allWords()
             elif self.isDictExist(name):
-                words = self.words()
+                words = self.words(name)
             else:
                 raise DictionaryNotExistError
 
-            ini_dict = dict()
+            period = int(period)
+            if period >= 0:
+                lastTime = words[-1].get('updateTime')
+                lastTime = date.fromtimestamp(lastTime)
+                # lastTime = date(lastTime.year, lastTime.month, lastTime.day - period)
+                new_words = list()
+
+                for word in words:
+                    if (lastTime - date.fromtimestamp(word['updateTime'])).days <= period:
+                        new_words.append(word)
+                words = new_words
+
+            initDict = dict()
 
             for word in words:
-                ini_dict.update({word.get('original'): word.get('translate')})
+                initDict.update({word.get('original'): word.get('translate')})
 
             for word in words:
-                ini_dict.update({word.get('translate').split(', ')[0]: word.get('original')})
+                initDict.update({word.get('translate').split(', ')[0]: word.get('original')})
 
-        self._testManager.setQuestions(ini_dict)
-        self._testManager.setTempQuestions(list(ini_dict.keys()))
+        self._testManager.setQuestions(initDict)
+        self._testManager.setTempQuestions(list(initDict.keys()))
 
         return True
 

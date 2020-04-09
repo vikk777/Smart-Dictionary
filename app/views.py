@@ -70,6 +70,7 @@ def dictionaries():
         viewDict = ()
 
     dicts = smartDict.dictionaries()
+    updateTime = functions.wordsUpdateTime(words)
     forms = dict()
 
     if view:
@@ -84,7 +85,8 @@ def dictionaries():
         dicts=dicts,
         words=words,
         viewDict=viewDict,
-        forms=forms)
+        forms=forms,
+        updateTime=updateTime)
 
 
 @app.route('/dictionaries/add/', methods=['POST', 'GET'])
@@ -218,6 +220,12 @@ def startTest():
     forms = dict()
     forms['startTest'] = TestStartForm()
     forms['startTest'].dictionary.choices = functions.choicesForSelect(smartDict)
+    forms['startTest'].period.choices = [
+        ('-1', 'All period'),
+        ('0', 'Last day'),
+        ('6', 'Last week'),
+        ('30', 'Last month')]
+
     if smartDict.haveMistakes():
         forms['correctMistakes'] = CorrectMistakesForm()
 
@@ -225,7 +233,8 @@ def startTest():
         if forms['startTest'].validate_on_submit():
             try:
                 dictionary = forms['startTest'].dictionary.data
-                smartDict.testInit(dictionary)
+                period = forms['startTest'].period.data
+                smartDict.testInit(dictionary, period)
                 return redirect(url_for('test'))
             except DictionaryNotExistError:
                 flash('Dictionary {} doesn\'t exist!'.format(dictionary))
@@ -259,7 +268,8 @@ def test():
                 result = smartDict.testResult()
                 return render_template('finish-test.html', result=result)
     else:
-        flash('Please, <a href="{0}">choice the dictionary</a> to pass the test.'.format(url_for('startTest')))
+        flash(
+            'Please, <a href="{0}">choice the dictionary</a> to pass the test.'.format(url_for('startTest')))
 
     return render_template('test.html', form=form, question=question)
 
