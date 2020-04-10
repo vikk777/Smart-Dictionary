@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, SubmitField
 from wtforms.validators import DataRequired, Regexp
+import app.consts as consts
 
 
 class DictionaryBaseForm(FlaskForm):
@@ -8,8 +9,8 @@ class DictionaryBaseForm(FlaskForm):
         'Name',
         validators=[
             DataRequired(),
-            Regexp('^[a-zA-Zа-яА-ЯёЁ\s]+$',
-                   message='Latin and russian letters and spaces only.')
+            Regexp(consts.regexp.RU_EN_FULL,
+                   message=consts.regexp.RU_EN_MSG)
         ],
         render_kw={
             'placeholder': 'Dictionary name'})
@@ -19,8 +20,8 @@ class DictionaryFullForm(DictionaryBaseForm):
     description = StringField(
         'Description',
         validators=[
-            Regexp('^[a-zA-Zа-яА-ЯёЁ\s]*$',
-                   message='Latin and russian letters and spaces only.')
+            Regexp(consts.regexp.RU_EN_EMPTY,
+                   message=consts.regexp.RU_EN_MSG)
         ],
         render_kw={
             'placeholder': 'Dictionary description'})

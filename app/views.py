@@ -36,12 +36,13 @@ def addWord(wrapped=False):
 
         try:
             smartDict.addWord(dictionary, original,
-                              translate, transcription, createTime, replace)
-            flash('Word {0} was added to {1}.'.format(
+                              translate, transcription,
+                              createTime, replace)
+            flash(consts.WORD_ADDED.format(
                 original, dictionary))
 
         except DictionaryNotExistError:
-            flash('Dictionary {} doesn\'t exist!'.format(dictionary))
+            flash(consts.DICT_NOT_EXIST.format(dictionary))
 
         return wrapped if wrapped else redirect(url_for('addWord'))
 
@@ -59,7 +60,7 @@ def dictionaries():
         words = smartDict.words(view) if view else []
         viewDict = smartDict.dictionary(view) if view else ()
     except DictionaryNotExistError:
-        flash('Dictionary {} doesn\'t exist!'.format(view))
+        flash(consts.DICT_NOT_EXIST.format(view))
         words = []
         viewDict = ()
 
@@ -93,11 +94,11 @@ def addDictionary():
 
         try:
             smartDict.addDictionary(name, description)
-            flash('Dictionary {} created.'.format(name))
+            flash(consts.DICT_ADDED.format(name))
             return redirect(url_for('dictionaries', view=name))
 
         except DictionaryAlreadyExistError:
-            flash('Dictionary {} already exist!'.format(name))
+            flash(consts.DICT_EXIST.format(name))
     else:  # form not valid
         functions.flashErrors(form)
 
@@ -113,11 +114,13 @@ def deleteDictionary():
 
         try:
             smartDict.deleteDictionary(name)
-            flash('Dictionary {} was deleted.'.format(name))
+            # flash(consts.'Dictionary {} was deleted.'.format(name))
+            flash(consts.DICT_DEL.format(name))
             return redirect(url_for('dictionaries'))
 
         except DictionaryNotExistError:
-            flash('Dictionary {} doesn\'t exist!'.format(name))
+            # flash(consts.'Dictionary {} doesn\'t exist!'.format(name))
+            flash(consts.DICT_NOT_EXIST.format(name))
 
     else:  # form not valid
         functions.flashErrors(form)
@@ -136,13 +139,16 @@ def changeDictionary():
 
         try:
             smartDict.changeDictionary(old, name, description)
-            flash('Dictionary {} was changed.'.format(name))
+            # flash(consts.'Dictionary {} was changed.'.format(name))
+            flash(consts.DICT_CHANGED.format(name))
             return redirect(url_for('dictionaries', view=name))
 
         except DictionaryAlreadyExistError:
-            flash('Dictionary {} already exist!'.format(name))
+            # flash(consts.'Dictionary {} already exist!'.format(name))
+            flash(consts.DICT_EXIST.format(name))
         except DictionaryNotExistError:
-            flash('Dictionary {} doesn\'t exist!'.format(old))
+            # flash(consts.'Dictionary {} doesn\'t exist!'.format(old))
+            flash(consts.DICT_NOT_EXIST.format(old))
 
     else:  # form not valid
         functions.flashErrors(form)
@@ -171,13 +177,15 @@ def changeWord():
         try:
             smartDict.changeWord(dictionary, old, original,
                                  translate, transcription, updateTime)
-            flash('Word {} was changed.'.format(old))
+            # flash(consts.'Word {} was changed.'.format(old))
+            flash(consts.WORD_CHANGED.format(old))
             return redirect(url_for('dictionaries', view=dictionary))
 
         except DictionaryNotExistError:
-            flash('Dictionary {} doesn\'t exist!'.format(dictionary))
+            # flash(consts.'Dictionary {} doesn\'t exist!'.format(dictionary))
+            flash(consts.DICT_NOT_EXIST.format(dictionary))
         except WordNotExistError:
-            flash('Word {} doesn\'t exist!'.format(old))
+            flash(consts.WORD_NOT_EXIST.format(old))
 
     else:  # form not valid
         functions.flashErrors(form)
@@ -195,13 +203,14 @@ def deleteWord():
 
         try:
             smartDict.deleteWord(dictionary, original)
-            flash('Word {} was deleted.'.format(original))
+            # flash(consts.'Word {} was deleted.'.format(original))
+            flash(consts.WORD_DEL.format(original))
             return redirect(url_for('dictionaries', view=dictionary))
 
         except DictionaryNotExistError:
-            flash('Dictionary {} doesn\'t exist!'.format(dictionary))
+            flash(consts.DICT_NOT_EXIST.format(dictionary))
         except WordNotExistError:
-            flash('Word {} doesn\'t exist!'.format(original))
+            flash(consts.WORD_NOT_EXIST.format(original))
 
     else:  # form not valid
         functions.flashErrors(form)
@@ -215,10 +224,10 @@ def startTest():
     forms['startTest'] = TestStartForm()
     forms['startTest'].dictionary.choices = functions.choicesForSelect(smartDict, addAll=True)
     forms['startTest'].period.choices = [
-        ('-1', 'All period'),
-        ('0', 'Last day'),
-        ('6', 'Last week'),
-        ('30', 'Last month')]
+        (consts.period.ALL_I, consts.period.ALL_S),
+        (consts.period.LAST_DAY_I, consts.period.LAST_DAY_S),
+        (consts.period.LAST_WEEK_I, consts.period.LAST_WEEK_S),
+        (consts.period.LAST_MONTH_I, consts.period.LAST_MONTH_S)]
 
     if smartDict.haveMistakes():
         forms['correctMistakes'] = CorrectMistakesForm()
@@ -231,7 +240,7 @@ def startTest():
                 smartDict.testInit(dictionary, period)
                 return redirect(url_for('test'))
             except DictionaryNotExistError:
-                flash('Dictionary {} doesn\'t exist!'.format(dictionary))
+                flash(consts.DICT_NOT_EXIST.format(dictionary))
         else:  # form not valid
             functions.flashErrors(forms['startTest'])
 
@@ -291,7 +300,7 @@ def importWords():
             # smartDict.importWords(dictionary, words, updateTime)
             flash('Words were added.')
         except DictionaryNotExistError:
-            flash('Dictionary {} doesn\'t exist!'.format(dictionary))
+            flash(consts.DICT_NOT_EXIST.format(dictionary))
 
     else:  # form not valid
         functions.flashErrors(form)

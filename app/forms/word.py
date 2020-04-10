@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, HiddenField, SubmitField, SelectField, BooleanField
 from wtforms.validators import DataRequired, Regexp
+import app.consts as consts
 
 
 class WordBaseForm(FlaskForm):
@@ -8,8 +9,8 @@ class WordBaseForm(FlaskForm):
         'Original',
         validators=[
             DataRequired(),
-            Regexp('^[a-zA-Z\s]+$',
-                   message='Latin letters and spaces only.')
+            Regexp(consts.regexp.EN,
+                   message=consts.regexp.EN_MSG)
         ],
         render_kw={'placeholder': 'original'})
 
@@ -21,8 +22,8 @@ class WordFullForm(WordBaseForm):
         'Translate',
         validators=[
             DataRequired(),
-            Regexp('^[А-Яа-яЁё\s,]+$',
-                   message='Russian letters and spaces only.')
+            Regexp(consts.regexp.RU,
+                   message=consts.regexp.RU_MSG)
         ],
         render_kw={'placeholder': 'translate'})
 
