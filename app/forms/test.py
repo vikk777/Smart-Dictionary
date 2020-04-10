@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import Form, FormField, FieldList, StringField, HiddenField, SubmitField, SelectField
-from wtforms.validators import DataRequired, Regexp
+from wtforms import StringField, HiddenField, SubmitField, SelectField
+from wtforms.validators import DataRequired
 
 
 class TestStartForm(FlaskForm):
@@ -10,7 +10,7 @@ class TestStartForm(FlaskForm):
 
 
 class TestNextForm(FlaskForm):
-    question = HiddenField()
+    question = HiddenField(validators=[DataRequired()])
     answer = StringField(
         validators=[DataRequired()],
         render_kw={

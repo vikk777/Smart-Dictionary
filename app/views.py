@@ -4,6 +4,7 @@ from .model.smart_dictionary import SmartDictionary
 from .forms.word import AddWordForm, AddWordSelectForm, ChangeWordForm, DeleteWordForm
 from .forms.dictionary import AddDictionaryForm, DeleteDictionaryForm, ChangeDictionaryForm
 from .forms.test import TestStartForm, TestNextForm, CorrectMistakesForm
+from .forms.import_words import ImportForm
 from .sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
 import app.functions as functions
 import time
@@ -23,14 +24,7 @@ def addWord(wrapped=False):
     wrapped is used for save flashed messages
     """
     form = AddWordSelectForm()
-    choices = list()
-
-    # take list of touples (name, name)
-    # for <select>
-    for touple in smartDict.dictionaries():
-        choices.append((touple[0], touple[0]))
-
-    form.dictionary.choices = choices
+    form.dictionary.choices = functions.choicesForSelect(smartDict)
 
     if form.validate_on_submit():
         dictionary = form.dictionary.data
@@ -215,11 +209,11 @@ def deleteWord():
     return redirect(request.referrer)
 
 
-@app.route('/test/start', methods=['POST', 'GET'])
+@app.route('/test/start/', methods=['POST', 'GET'])
 def startTest():
     forms = dict()
     forms['startTest'] = TestStartForm()
-    forms['startTest'].dictionary.choices = functions.choicesForSelect(smartDict)
+    forms['startTest'].dictionary.choices = functions.choicesForSelect(smartDict, addAll=True)
     forms['startTest'].period.choices = [
         ('-1', 'All period'),
         ('0', 'Last day'),
@@ -248,7 +242,7 @@ def startTest():
     return render_template('start-test.html', forms=forms)
 
 
-@app.route('/test', methods=['POST', 'GET'])
+@app.route('/test/', methods=['POST', 'GET'])
 def test():
     forms = dict()
     forms['testNext'] = TestNextForm()
@@ -281,3 +275,25 @@ def test():
         'test.html',
         form=forms['testNext'],
         question=question)
+
+
+@app.route('/import/', methods=['POST', 'GET'])
+def importWords():
+    form = ImportForm()
+    form.dictionary.choices = functions.choicesForSelect(smartDict)
+
+    if form.validate_on_submit():
+        dictionary = form.dictionary.data
+        words = form.words.data
+        updateTime = time.time()
+
+        try:
+            # smartDict.importWords(dictionary, words, updateTime)
+            flash('Words were added.')
+        except DictionaryNotExistError:
+            flash('Dictionary {} doesn\'t exist!'.format(dictionary))
+
+    else:  # form not valid
+        functions.flashErrors(form)
+
+    return render_template('import.html', form=form)

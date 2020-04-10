@@ -11,17 +11,20 @@ def flashErrors(form):
 
 
 # Get dictionaries list from SmartDictionary for select tag
-def choicesForSelect(dictionary):
+def choicesForSelect(dictionary, addAll=False):
     choices = list()
 
     # take list of touples (name, name)
     # for <select>
     for item in dictionary.dictionaries():
-        if dictionary.quantity(item[0]):
+        if addAll:
+            if dictionary.quantity(item[0]):
+                choices.append((item[0], item[0]))
+        else:
             choices.append((item[0], item[0]))
 
     # Add "All" option, if dictionaries more then 1
-    if len(choices) > 1:
+    if len(choices) > 1 and addAll:
         choices.append(('__all__', 'All'))
 
     return choices
