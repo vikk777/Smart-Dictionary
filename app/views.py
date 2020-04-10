@@ -250,31 +250,34 @@ def startTest():
 
 @app.route('/test', methods=['POST', 'GET'])
 def test():
-    form = TestNextForm()
+    forms = dict()
+    forms['testNext'] = TestNextForm()
     # if there are errors, last question will remains
-    question = form.question.data
+    question = forms['testNext'].question.data
 
     if smartDict.testIsInit():
-        if form.validate_on_submit():
-            answer = form.answer.data
+        if forms['testNext'].validate_on_submit():
+            answer = forms['testNext'].answer.data
             smartDict.addAnswer((question, answer))
         else:
-            functions.flashErrors(form)
+            functions.flashErrors(forms['testNext'])
 
-        if not form.errors:
+        if not forms['testNext'].errors:
             question = smartDict.nextQuestion()
 
             if not question:
                 result = smartDict.testResult()
-                return render_template('finish-test.html', result=result)
+
+                forms['correctMistakes'] = CorrectMistakesForm() if smartDict.haveMistakes() else None
+
+                return render_template(
+                    'finish-test.html',
+                    result=result,
+                    form=forms['correctMistakes'])
     else:
-        flash(
-            'Please, <a href="{0}">choice the dictionary</a> to pass the test.'.format(url_for('startTest')))
+        flash('Please, <a href="{0}">choice the dictionary</a> to pass the test.'.format(url_for('startTest')))
 
-    return render_template('test.html', form=form, question=question)
-
-
-@app.route('/test/finish', methods=['POST', 'GET'])
-def finishTest():
-    pass
-    return render_template('finish-test.html')
+    return render_template(
+        'test.html',
+        form=forms['testNext'],
+        question=question)

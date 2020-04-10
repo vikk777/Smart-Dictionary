@@ -45,10 +45,12 @@ class TestManager(object):
         for question in self._questions:
             if self._answers.get(question) in self._questions.get(question).split(', '):
                 correct += 1
-                del self._mistakesAnswers[question]
+                if question in self._mistakesAnswers:
+                    del self._mistakesAnswers[question]
             else:
                 incorrect += 1
-                self._mistakesAnswers.update({question: self._questions.get(question)})
+                if question not in self._mistakesAnswers:
+                    self._mistakesAnswers.update({question: self._questions.get(question)})
 
         self._questions.clear()
         self._answers.clear()

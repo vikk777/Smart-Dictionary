@@ -6,11 +6,12 @@
 
 {% block content %}
 Test finished with {{ result }}
-{#     <form action="{{ url_for('finishTest') }}" method="post">
+
+<form action="{{ url_for('startTest') }}" method="post">
+    {% if form %}
         {% for field in form %}
             {{ field }}
         {% endfor %}
-    </form>
- #}
-    {# {{ macros.flashed_messages() }} #}
+    {% endif %}
+</form>
 {% endblock %}

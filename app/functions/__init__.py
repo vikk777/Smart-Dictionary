@@ -1,5 +1,5 @@
 from flask import flash
-import datetime
+from datetime import date
 
 
 # Add form errors messages to flash
@@ -29,10 +29,9 @@ def choicesForSelect(dictionary):
 
 def wordsUpdateTime(words):
     timeDict = dict()
-    updateTime = 0
+    updateTime = date.fromtimestamp(0)
     for word in words:
-        if updateTime != word['updateTime']:
-            updateTime = word['updateTime']
-            strTime = datetime.date.fromtimestamp(updateTime)
-            timeDict.update({word['original']: strTime.strftime('%d %b\'%y')})
+        if updateTime != date.fromtimestamp(word['updateTime']):
+            updateTime = date.fromtimestamp(word['updateTime'])
+            timeDict.update({word['original']: updateTime.strftime('%d %b\'%y')})
     return timeDict
