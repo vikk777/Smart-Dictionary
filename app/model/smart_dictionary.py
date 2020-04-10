@@ -4,7 +4,7 @@ from .test_manager import TestManager
 from ..sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
 import re
 import app.consts as consts
-from  datetime import date
+from datetime import date
 
 
 class SmartDictionary(object):
@@ -94,7 +94,6 @@ class SmartDictionary(object):
             raise DictionaryNotExistError
 
     def changeDictionary(self, old_name, new_name, description):
-        # Optimization!
         new_name = self.trim(new_name)
         description = self.trim(description)
 
@@ -122,7 +121,6 @@ class SmartDictionary(object):
             raise DictionaryNotExistError
 
     def addWord(self, name, original, translate, transcrip, time, replace=False):
-        # Added time - float
         original = self.trim(original)
         translate = self.trim(translate)
         transcrip = self.trim(transcrip)
@@ -164,7 +162,6 @@ class SmartDictionary(object):
             raise WordNotExistError
 
     def changeWord(self, name, old_orig, orig, translate, transcription, time):
-        # Added time - float
         orig = self.trim(orig)
         translate = self.trim(translate)
         transcription = self.trim(transcription)
@@ -191,12 +188,12 @@ class SmartDictionary(object):
 
     def trim(self, string):
         string = re.sub('\s\s+', ' ', string.strip())
-        return re.sub(',', ', ', string)
+        return re.sub('\s*,', ', ', string)
 
     def testInit(self, name, period='-1'):
         if name == consts.MISTAKE_DICT:
             initDict = dict()
-            for questions, answer in (self._testManager.mistakesAnswers()).items():
+            for questions, answer in self._testManager.mistakesAnswers().items():
                 initDict.update({questions: answer})
 
         else:
@@ -248,13 +245,45 @@ class SmartDictionary(object):
 
     def addAnswer(self, answer):
         # answer - tuple()
-        answ = list(answer)
-        answ = (self.trim(answ[0]), self.trim(answ[1]))
-
-        self._testManager.setAnswers(answ)
+        # answ = list()
+        # answ = (self.trim(answer[0]), self.trim(answer[1]))
+        self._testManager.setAnswers((self.trim(answer[0]),
+                                      self.trim(answer[1])))
 
     def testResult(self):
         return self._testManager.check()
 
     def haveMistakes(self):
         return True if self._testManager.mistakesAnswers() else False
+
+    # 1-ый способ
+    # def importWords(self, dictionary, words, updateTime):
+    #     if self.isDictExist(dictionary):
+    #         words = words.split('\n')
+    #         for word in words:
+    #             self.addWord(dictionary,
+    #                          self.trim(word).split(' - ')[0],
+    #                          self.trim(word).split(' - ')[1],
+    #                          None,
+    #                          updateTime)
+    #         return True
+    #     else:
+    #         raise DictionaryNotExistError
+
+    # 2-ый способ
+    def importWords(self, dictionary, words, updateTime):
+        if self.isDictExist(dictionary):
+            words = words.split('\n')
+            # Change regular
+            # regex = re.compile('(\w+)\s*-\s*(\w+(,?\s*\w*)*)')
+            regex = re.compile('(\w+)\s*-\s*(.*)')
+            for word in words:
+                word = regex.findall(self.trim(word))
+                self.addWord(dictionary,
+                             word[0][0],
+                             word[0][1],
+                             None,
+                             updateTime)
+            return True
+        else:
+            raise DictionaryNotExistError
