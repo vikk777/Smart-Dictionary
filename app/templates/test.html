@@ -5,16 +5,22 @@
 {% endblock %}
 
 {% block content %}
-    {% if question %}
+    {% if question.get('question') %}
         <form action="{# url_for('finishTest') #}" method="post">
             {{ form.csrf_token }}
             <p>
-                {{ question }}
-                {{ form.question(value=question) }} -
+                {{ question.get('question') }}
+                {{ form.question(value=question.get('question')) }} -
                 {{ form.answer(value='') }}
             </p>
             {{ form.nextQuestion() }}
         </form>
+
+        {% if question.get('progress') %}
+            {{ question.get('progress').get('current') }}
+            of
+            {{ question.get('progress').get('total') }}
+        {% endif %}
     {% endif %}
 
     {{ macros.flashed_messages() }}

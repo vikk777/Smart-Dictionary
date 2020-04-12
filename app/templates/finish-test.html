@@ -5,7 +5,20 @@
 {% endblock %}
 
 {% block content %}
-Test finished with {{ result }}
+Test finished with {{ result['correct'] }} of {{ result['total'] }}
+
+{% if result['mistakes'] %}
+   <p>Your mistakes:</p>
+    {% for mistake in result['mistakes'] %}
+        <p>
+            <span>
+                {{ mistake['question'] }}: 
+                your answer: {{ mistake['wrong'] }},
+                right answer: {{ mistake['right'] }}
+            </span>
+        </p>
+    {% endfor %}
+{% endif %}
 
 <form action="{{ url_for('startTest') }}" method="post">
     {% if form %}

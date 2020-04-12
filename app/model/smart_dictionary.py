@@ -193,13 +193,12 @@ class SmartDictionary(object):
 
     def trim(self, string):
         string = re.sub('\s\s+', ' ', string.strip())
-        # return re.sub('\s*,', ', ', string)
         return re.sub('([\S])(,)([\S])', r'\1\2 \3', string)
 
     def testInit(self, name, period=consts.period.ALL_I):
         if name == consts.MISTAKE_DICT:
             initDict = dict()
-            for questions, answer in self._testManager.mistakesAnswers().items():
+            for questions, answer in self._testManager.mistakes().items():
                 initDict.update({questions: answer})
 
         else:
@@ -214,7 +213,6 @@ class SmartDictionary(object):
             if period >= 0:
                 lastTime = words[-1].get('updateTime')
                 lastTime = date.fromtimestamp(lastTime)
-                # lastTime = date(lastTime.year, lastTime.month, lastTime.day - period)
                 new_words = list()
 
                 for word in words:
@@ -228,15 +226,15 @@ class SmartDictionary(object):
                 initDict.update({word.get('original'): word.get('translate')})
 
             for word in words:
-                initDict.update(
-                    {word.get('translate').split(', ')[0]: word.get('original')})
+                # initDict.update({word.get('translate').split(', ')[0]: word.get('original')})
+                initDict.update({word.get('translate'): word.get('original')})
 
         self._testManager.setQuestions(initDict)
         self._testManager.setTempQuestions(list(initDict.keys()))
 
         return True
 
-    def testIsInit(self):
+    def isTestInit(self):
         return True if self._testManager._questions else False
 
     def nextQuestion(self):
@@ -244,59 +242,26 @@ class SmartDictionary(object):
 
         if questions:
             question = questions.pop(0)
-            self._testManager.setTempQuestions(questions)
-            return question
+            # questions is refer to _tempQuestions
+            # self._testManager.setTempQuestions(questions)
+            return {'question': question,
+                    'progress': self._testManager.progress()}
 
         else:
-            return ''
+            return {}
 
     def addAnswer(self, answer):
         # answer - tuple()
-        # answ = list()
-        # answ = (self.trim(answer[0]), self.trim(answer[1]))
-        self._testManager.setAnswers((self.trim(answer[0]),
-                                      self.trim(answer[1])))
+        self._testManager.setAnswer((self.trim(answer[0]),
+                                     self.trim(answer[1])))
 
     def testResult(self):
         return self._testManager.check()
 
-    def haveMistakes(self):
-        return True if self._testManager.mistakesAnswers() else False
+    def mistakes(self):
+        # return True if self._testManager.mistakes() else False
+        return self._testManager.mistakes()
 
-    # 1-ый способ
-    # def importWords(self, dictionary, words, updateTime):
-    #     if self.isDictExist(dictionary):
-    #         words = words.split('\n')
-    #         for word in words:
-    #             self.addWord(dictionary,
-    #                          self.trim(word).split(' - ')[0],
-    #                          self.trim(word).split(' - ')[1],
-    #                          None,
-    #                          updateTime)
-    #         return True
-    #     else:
-    #         raise DictionaryNotExistError
-
-    # 2-ый способ
-    # def importWords(self, dictionary, words, updateTime):
-    #     if self.isDictExist(dictionary):
-        # words = words.split('\n')
-        # Change regular
-        # regex = re.compile('(\w+)\s*-\s*(\w+(,?\s*\w*)*)')
-        # regex = re.compile('(\w+)\s*-\s*(.*)')
-
-        # for word in words:
-        #     word = regex.findall(self.trim(word))
-        # self.addWord(dictionary,
-        #              word[0][0],
-        #              word[0][1],
-        #              None,
-        #              updateTime)
-        #     return True
-        # else:
-        #     raise DictionaryNotExistError
-
-    # 3th method
     def importWords(self, dictionary, words, updateTime):
         if self.isDictExist(dictionary):
             words = words.split('\r\n')

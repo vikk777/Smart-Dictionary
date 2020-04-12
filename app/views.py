@@ -229,7 +229,8 @@ def startTest():
         (consts.period.LAST_WEEK_I, consts.period.LAST_WEEK_S),
         (consts.period.LAST_MONTH_I, consts.period.LAST_MONTH_S)]
 
-    if smartDict.haveMistakes():
+    mistakes = smartDict.mistakes()
+    if mistakes:
         forms['correctMistakes'] = CorrectMistakesForm()
 
     if 'startTest' in request.form:
@@ -248,7 +249,9 @@ def startTest():
         smartDict.testInit(consts.MISTAKE_DICT)
         return redirect(url_for('test'))
 
-    return render_template('start-test.html', forms=forms)
+    return render_template('start-test.html',
+                           forms=forms,
+                           mistakes=mistakes)
 
 
 @app.route('/test/', methods=['POST', 'GET'])
@@ -256,12 +259,13 @@ def test():
     forms = dict()
     forms['testNext'] = TestNextForm()
     # if there are errors, last question will remains
-    question = forms['testNext'].question.data
+    question = dict()
+    question['question'] = forms['testNext'].question.data
 
-    if smartDict.testIsInit():
+    if smartDict.isTestInit():
         if forms['testNext'].validate_on_submit():
             answer = forms['testNext'].answer.data
-            smartDict.addAnswer((question, answer))
+            smartDict.addAnswer((question['question'], answer))
         else:
             functions.flashErrors(forms['testNext'])
 
@@ -271,7 +275,7 @@ def test():
             if not question:
                 result = smartDict.testResult()
 
-                forms['correctMistakes'] = CorrectMistakesForm() if smartDict.haveMistakes() else None
+                forms['correctMistakes'] = CorrectMistakesForm() if smartDict.mistakes() else None
 
                 return render_template(
                     'finish-test.html',
