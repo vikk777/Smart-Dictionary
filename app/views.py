@@ -290,6 +290,7 @@ def test():
 def importWords():
     form = ImportForm()
     form.dictionary.choices = functions.choicesForSelect(smartDict)
+    addedWords = list()
 
     if form.validate_on_submit():
         dictionary = form.dictionary.data
@@ -297,12 +298,18 @@ def importWords():
         updateTime = time.time()
 
         try:
-            # smartDict.importWords(dictionary, words, updateTime)
-            flash('Words were added.')
+            addedWords = smartDict.importWords(dictionary, words, updateTime)
+            if addedWords:
+                flash('Next words were added:')
+                for word in addedWords:
+                    flash(word)
+            else:
+                flash('Words were not added.')
+            return redirect(url_for('importWords'))
         except DictionaryNotExistError:
             flash(consts.DICT_NOT_EXIST.format(dictionary))
 
     else:  # form not valid
         functions.flashErrors(form)
 
-    return render_template('import.html', form=form)
+    return render_template('import.html', form=form, addedWords=addedWords)

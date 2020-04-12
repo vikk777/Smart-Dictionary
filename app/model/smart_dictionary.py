@@ -120,10 +120,10 @@ class SmartDictionary(object):
         else:
             raise DictionaryNotExistError
 
-    def addWord(self, name, original, translate, transcrip, time, replace=False):
+    def addWord(self, name, original, translate, transcription, time, replace=False):
         original = self.trim(original)
         translate = self.trim(translate)
-        transcrip = self.trim(transcrip)
+        transcription = self.trim(transcription)
 
         if self.isDictExist(name):
 
@@ -131,18 +131,24 @@ class SmartDictionary(object):
                 word = self._dicts[name].words()[original]
 
                 if not replace:
-                    translate = word.translate() + ', ' + translate
+                    # translate = word.translate() + ', ' + translate
+                    old = word.translate()
+                    if translate not in old.split(', '):
+                        translate += ', ' + old
+                    else:
+                        translate = old
 
-                    if transcrip and word.transcription():
-                        transcrip = word.transcription() + ', ' + transcrip
+                    if transcription and word.transcription():
+                        # transcription = word.transcription() + ', ' + transcription
+                        transcription += ', ' + word.transcription()
 
                 word.setTranslate(translate)
                 word.setUpdateTime(time)
-                if transcrip:
-                    word.setTranscription(transcrip)
+                if transcription:
+                    word.setTranscription(transcription)
 
             else:
-                new_word = Word(original, translate, transcrip, time)
+                new_word = Word(original, translate, transcription, time)
                 self._dicts[name].addWord(new_word)
 
             return True
@@ -183,14 +189,14 @@ class SmartDictionary(object):
     def isWordExist(self, name, original):
         if not self.isDictExist(name):
             raise DictionaryNotExistError
-
         return original in self._dicts.get(name).words()
 
     def trim(self, string):
         string = re.sub('\s\s+', ' ', string.strip())
-        return re.sub('\s*,', ', ', string)
+        # return re.sub('\s*,', ', ', string)
+        return re.sub('([\S])(,)([\S])', r'\1\2 \3', string)
 
-    def testInit(self, name, period='-1'):
+    def testInit(self, name, period=consts.period.ALL_I):
         if name == consts.MISTAKE_DICT:
             initDict = dict()
             for questions, answer in self._testManager.mistakesAnswers().items():
@@ -222,7 +228,8 @@ class SmartDictionary(object):
                 initDict.update({word.get('original'): word.get('translate')})
 
             for word in words:
-                initDict.update({word.get('translate').split(', ')[0]: word.get('original')})
+                initDict.update(
+                    {word.get('translate').split(', ')[0]: word.get('original')})
 
         self._testManager.setQuestions(initDict)
         self._testManager.setTempQuestions(list(initDict.keys()))
@@ -271,19 +278,38 @@ class SmartDictionary(object):
     #         raise DictionaryNotExistError
 
     # 2-ый способ
+    # def importWords(self, dictionary, words, updateTime):
+    #     if self.isDictExist(dictionary):
+        # words = words.split('\n')
+        # Change regular
+        # regex = re.compile('(\w+)\s*-\s*(\w+(,?\s*\w*)*)')
+        # regex = re.compile('(\w+)\s*-\s*(.*)')
+
+        # for word in words:
+        #     word = regex.findall(self.trim(word))
+        # self.addWord(dictionary,
+        #              word[0][0],
+        #              word[0][1],
+        #              None,
+        #              updateTime)
+        #     return True
+        # else:
+        #     raise DictionaryNotExistError
+
+    # 3th method
     def importWords(self, dictionary, words, updateTime):
         if self.isDictExist(dictionary):
-            words = words.split('\n')
-            # Change regular
-            # regex = re.compile('(\w+)\s*-\s*(\w+(,?\s*\w*)*)')
-            regex = re.compile('(\w+)\s*-\s*(.*)')
+            words = words.split('\r\n')
+            addedWords = list()
+
             for word in words:
-                word = regex.findall(self.trim(word))
-                self.addWord(dictionary,
-                             word[0][0],
-                             word[0][1],
-                             None,
-                             updateTime)
-            return True
+                word = re.search('([a-zA-Z]+)\s*-\s*((,? *[а-яА-ЯёЁ]+)+)',
+                                 self.trim(word))
+                if word:
+                    self.addWord(dictionary, word[1], word[2], '', updateTime)
+
+                    if word[1] not in addedWords:
+                        addedWords.append(word[1])
+            return addedWords
         else:
             raise DictionaryNotExistError

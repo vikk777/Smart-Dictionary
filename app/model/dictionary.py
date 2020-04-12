@@ -23,7 +23,7 @@ class Dictionary():
         return self._words.get(word)
 
     def addWord(self, word):
-        if word.original() in self._words.keys():
+        if word.original() in self._words:
             del self._words[word.original()]
 
         self._words[word.original()] = word
