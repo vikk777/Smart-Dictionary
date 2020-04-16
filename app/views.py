@@ -1,11 +1,14 @@
-from . import app
+from . import app, login_manager
 from flask import request, redirect, render_template, url_for, flash
+from flask_login import login_required, login_user, logout_user, current_user
 from .model.smart_dictionary import SmartDictionary
 from .forms.word import AddWordForm, AddWordSelectForm, ChangeWordForm, DeleteWordForm
 from .forms.dictionary import AddDictionaryForm, DeleteDictionaryForm, ChangeDictionaryForm
 from .forms.test import TestStartForm, TestNextForm, CorrectMistakesForm
 from .forms.import_words import ImportForm
-from .sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
+from .forms.login import LoginForm, RegisterForm
+# from .database import db, User
+from .sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError, UserAlreadyExistError
 import app.functions as functions
 import time
 import app.consts as consts
@@ -317,3 +320,46 @@ def importWords():
         functions.flashErrors(form)
 
     return render_template('import.html', form=form, addedWords=addedWords)
+
+
+# @login_manager.user_loader
+# def load_user(user_id):
+#     return db.session.query(User).get(user_id)
+
+
+@app.route('/login/', methods=['POST', 'GET'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('addWord'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        # user = db.session.query(User).filter(User.username == form.username.data).first()
+        user = smartDict.user(form.username.data)
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember.data)
+            flash('Authorization successful.')
+            return redirect(url_for('addWord'))
+
+        flash('Invalid username/password.')
+        return redirect(url_for('login'))
+    return render_template('login.html', form=form)
+
+
+@app.route('/register/', methods=['POST', 'GET'])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        try:
+            smartDict.registerUser(form.username.data, form.password.data)
+            return redirect(url_for('login'))
+        except UserAlreadyExistError:
+            flash('User exists.')
+    return render_template('register.html', form=form)
+
+
+@app.route('/logout/')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.')
+    return redirect(url_for('login'))
