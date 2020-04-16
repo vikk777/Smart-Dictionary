@@ -23,8 +23,8 @@ class Dictionary(db.Model):
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(24))
-    password = db.Column(db.String(128))
+    username = db.Column(db.String(24))
+    password_hash = db.Column(db.String(128))
     dictionaries = db.relationship('Dictionary',
                                    backref='user',
                                    lazy='dynamic')
@@ -33,13 +33,15 @@ class User(db.Model):
                                # backref='user',
                                lazy='dynamic')
 
+    def __repr__(self):
+        return "<{}:{}>".format(self.id, self.username)
+
 
 # class Mistakes(db.Model):
-    # id = db.Column(db.Integer, primary_key=True)
-mistakes = db.Table(
-    'mistakes',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('word_id', db.Integer, db.ForeignKey('words.id')))
+#     id = db.Column(db.Integer, primary_key=True)
+mistakes = db.Table('mistakes',
+                     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+                     db.Column('word_id', db.Integer, db.ForeignKey('words.id')))
 
 
 # class Users_Dictionaries(db.Model):
