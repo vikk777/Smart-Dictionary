@@ -193,7 +193,7 @@ class SmartDictionary(object):
 
     def trim(self, string):
         string = re.sub('\s\s+', ' ', string.strip())
-        return re.sub('([\S])(,)([\S])', r'\1\2 \3', string)
+        return re.sub('([\S]) ?(,) ?([\S])', r'\1\2 \3', string)
 
     def testInit(self, name, period=consts.period.ALL_I):
         if name == consts.MISTAKE_DICT:

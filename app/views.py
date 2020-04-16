@@ -1,10 +1,12 @@
-from . import app
+from . import app, login_manager
 from flask import request, redirect, render_template, url_for, flash
+from flask_login import login_required, login_user, logout_user
 from .model.smart_dictionary import SmartDictionary
 from .forms.word import AddWordForm, AddWordSelectForm, ChangeWordForm, DeleteWordForm
 from .forms.dictionary import AddDictionaryForm, DeleteDictionaryForm, ChangeDictionaryForm
 from .forms.test import TestStartForm, TestNextForm, CorrectMistakesForm
 from .forms.import_words import ImportForm
+from .forms.login import LoginForm
 from .sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
 import app.functions as functions
 import time
@@ -317,3 +319,31 @@ def importWords():
         functions.flashErrors(form)
 
     return render_template('import.html', form=form, addedWords=addedWords)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    # return db.session.query(User).get(user_id)
+    return None
+
+
+@app.route('/login/', methods=['POST', 'GET'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        if form.username.data == 'admin' and form.password.data == 'admin':
+            # login_user(user)
+            flash('Authorization successful')
+            return redirect(url_for('login'))
+
+        flash("Invalid username/password", 'error')
+        return redirect(url_for('login'))
+    return render_template('login.html', form=form)
+
+
+@app.route('/logout/')
+@login_required
+def logout():
+    logout_user()
+    flash("You have been logged out.")
+    return redirect(url_for('login'))
