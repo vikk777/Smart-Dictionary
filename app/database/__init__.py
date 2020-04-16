@@ -1,7 +1,8 @@
 from app import db
 
 
-class Words(db.Model):
+class Word(db.Model):
+    __tablename__ = 'words'
     id = db.Column(db.Integer, primary_key=True)
     dictionary_id = db.Column(db.Integer, db.ForeignKey('dictionaries.id'))
     original = db.Column(db.String(32))
@@ -10,22 +11,24 @@ class Words(db.Model):
     updateTime = db.Column(db.Float)
 
 
-class Dictionaries(db.Model):
+class Dictionary(db.Model):
+    __tablename__ = 'dictionaries'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     name = db.Column(db.String(24))
     description = db.Column(db.String(32))
-    words = db.relationship('Words', backref='dictionary', lazy='dynamic')
+    words = db.relationship('Word', backref='dictionary', lazy='dynamic')
 
 
-class Users(db.Model):
+class User(db.Model):
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(24))
     password = db.Column(db.String(128))
-    dictionaries = db.relationship('Dictionaries',
+    dictionaries = db.relationship('Dictionary',
                                    backref='user',
                                    lazy='dynamic')
-    mistakes = db.relationship('Words',
+    mistakes = db.relationship('Word',
                                secondary='mistakes',
                                # backref='user',
                                lazy='dynamic')
