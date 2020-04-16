@@ -93,24 +93,24 @@ class SmartDictionary(object):
         else:
             raise DictionaryNotExistError
 
-    def changeDictionary(self, old_name, new_name, description):
-        new_name = self.trim(new_name)
+    def changeDictionary(self, oldName, newName, description):
+        newName = self.trim(newName)
         description = self.trim(description)
 
-        if self.isDictExist(old_name):
+        if self.isDictExist(oldName):
 
-            if not self.isDictExist(new_name) or old_name == new_name:
+            if not self.isDictExist(newName) or oldName == newName:
 
-                if old_name == new_name:
-                    dictionary = self._dicts[old_name]
-                    dictionary.setName(new_name)
+                if oldName == newName:
+                    dictionary = self._dicts[oldName]
+                    dictionary.setName(newName)
                     dictionary.setDescription(description)
 
                 else:
-                    dictionary = self._dicts.pop(old_name)
-                    dictionary.setName(new_name)
+                    dictionary = self._dicts.pop(oldName)
+                    dictionary.setName(newName)
                     dictionary.setDescription(description)
-                    self._dicts[new_name] = dictionary
+                    self._dicts[newName] = dictionary
 
                 return True
 

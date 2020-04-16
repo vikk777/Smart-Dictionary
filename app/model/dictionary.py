@@ -6,12 +6,17 @@ class Dictionary():
     """Class-decorator upon database.Dictionaries"""
 
     def __init__(self, name, description):
-        self._name = name
-        self._description = description
-        self._words = dict()
+        # self._name = name
+        # self._description = description
+        # self._words = dict()
+        d = tables.Dictionary(name=name, description=description)
+        db.session.add(d)
+        db.session.commit()
 
-    def setName(self, name):
-        self._name = name
+    def setName(self, oldName, newName):
+        # self._name = name
+        d = db.session.query(tables.Dictionary).filter_by(name=oldName)
+        d.name = newName
 
     def setDescription(self, description):
         self._description = description
