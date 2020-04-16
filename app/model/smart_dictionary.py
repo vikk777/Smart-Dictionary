@@ -138,9 +138,8 @@ class SmartDictionary(object):
                     else:
                         translate = old
 
-                    if transcription and word.transcription():
-                        # transcription = word.transcription() + ', ' + transcription
-                        transcription += ', ' + word.transcription()
+                    # if transcription and word.transcription():
+                    #     transcription += ', ' + word.transcription()
 
                 word.setTranslate(translate)
                 word.setUpdateTime(time)
@@ -193,7 +192,7 @@ class SmartDictionary(object):
 
     def trim(self, string):
         string = re.sub('\s\s+', ' ', string.strip())
-        return re.sub('([\S])(,)([\S])', r'\1\2 \3', string)
+        return re.sub('([\S]) ?(,) ?([\S])', r'\1\2 \3', string)
 
     def testInit(self, name, period=consts.period.ALL_I):
         if name == consts.MISTAKE_DICT:

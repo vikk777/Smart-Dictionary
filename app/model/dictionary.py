@@ -1,4 +1,10 @@
+from app import db
+import app.database as tables
+
+
 class Dictionary():
+    """Class-decorator upon database.Dictionaries"""
+
     def __init__(self, name, description):
         self._name = name
         self._description = description
