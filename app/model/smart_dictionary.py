@@ -138,9 +138,8 @@ class SmartDictionary(object):
                     else:
                         translate = old
 
-                    if transcription and word.transcription():
-                        # transcription = word.transcription() + ', ' + transcription
-                        transcription += ', ' + word.transcription()
+                    # if transcription and word.transcription():
+                    #     transcription += ', ' + word.transcription()
 
                 word.setTranslate(translate)
                 word.setUpdateTime(time)
