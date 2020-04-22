@@ -1,213 +1,156 @@
-from .word import Word
 from .dictionary import Dictionary
 from .test_manager import TestManager
-from ..sderrors import DictionaryNotExistError, DictionaryAlreadyExistError, WordNotExistError
-import re
+from .user import User
+from ..sderrors import DictionaryNotExistError,\
+    DictionaryAlreadyExistError,\
+    InvalidUsernameOrPasswordError,\
+    UserAlreadyExistError
+# import re
+import app.functions as functions
 import app.consts as consts
 from datetime import date
+from flask_login import logout_user, current_user
+# login_user
+
+# !!! trim username
 
 
-class SmartDictionary(object):
+class SmartDictionary():
     def __init__(self):
-        self._dicts = dict()
+        self._user = User()
+        self._dict = Dictionary()
         self._testManager = TestManager()
 
-        # Change name!
-        self.addDictionary('Dict', 'Default dictionary')
-
-    def words(self, name):
-        if self.isDictExist(name):
-            dict_words = list()
-            # List all objects "Word" of this dictionary
-            words = list(self._dicts.get(name).words().values())
-            for word in words:
-                dict_words.append({'original': word.original(),
-                                   'translate': word.translate(),
-                                   'transcription': word.transcription(),
-                                   'updateTime': word.updateTime()})
-            return dict_words
-
-        else:
-            raise DictionaryNotExistError
-
-    def allWords(self):
-        all_words = list()
-
-        for name in self._dicts:
-            all_words.extend(self.words(name))
-
-        return all_words
-
-    def dictionary(self, name):
-        if self.isDictExist(name):
-            dict_info = self._dicts.get(name)
-            return (dict_info.name(), dict_info.description())
-        else:
-            raise DictionaryNotExistError
-
-    def dictionaries(self):
-        dict_info = list()
-
-        for name in self._dicts:
-            dict_info.append(self.dictionary(name))
-
-        return dict_info
-
-    def quantity(self, name):
-        if self.isDictExist(name):
-            # List all objects "Word" of this dictionary
-            words = list(self._dicts.get(name).words().values())
-            return len(words)
-
-        else:
-            raise DictionaryNotExistError
-
-    def totalWords(self):
-        # List all objects "Dictionary"
-        dictionaries = list(self._dicts.values())
-        quant = 0
-
-        for dictionary in dictionaries:
-            # List all objects "Word" of this dictionary
-            words = list(dictionary.words().values())
-            quant = quant + len(words)
-
-        return quant
+# Dictionary --------------------------------------------------
 
     def addDictionary(self, name, description):
-        name = self.trim(name)
-        description = self.trim(description)
+        name = functions.trim(name)
+        description = functions.trim(description)
 
-        if not self.isDictExist(name):
-            self._dicts[name] = Dictionary(name, description)
+        if not self._dict.isExist(current_user, name):
+            self._dict.add(current_user, name, description)
             return True
 
         else:
             raise DictionaryAlreadyExistError
 
-    def deleteDictionary(self, name):
-        if self.isDictExist(name):
-            del self._dicts[name]
-            return True
+    def dictionaries(self):
+        """Get all dict's name and description in list(tuple())"""
+        temp = self._dict.all(current_user)
+        dicts = list()
 
+        for dict_ in temp:
+            dicts.append((dict_.name, dict_.description))
+
+        return dicts
+
+    def dictionary(self, name):
+        dict_ = self._dict.get(current_user, name)
+        if dict_:
+            return (dict_.name, dict_.description)
         else:
             raise DictionaryNotExistError
 
     def changeDictionary(self, oldName, newName, description):
-        newName = self.trim(newName)
-        description = self.trim(description)
+        newName = functions.trim(newName)
+        description = functions.trim(description)
 
-        if self.isDictExist(oldName):
-
-            if not self.isDictExist(newName) or oldName == newName:
-
-                if oldName == newName:
-                    dictionary = self._dicts[oldName]
-                    dictionary.setName(newName)
-                    dictionary.setDescription(description)
-
-                else:
-                    dictionary = self._dicts.pop(oldName)
-                    dictionary.setName(newName)
-                    dictionary.setDescription(description)
-                    self._dicts[newName] = dictionary
-
-                return True
-
-            else:
+        if self._dict.isExist(current_user, oldName):
+            if self._dict.isExist(current_user, newName)\
+                    and oldName != newName:
                 raise DictionaryAlreadyExistError
+            else:
+                self._dict.change(current_user, oldName, newName, description)
+                return True
 
         else:
             raise DictionaryNotExistError
 
-    def addWord(self, name, original, translate, transcription, time, replace=False):
-        original = self.trim(original)
-        translate = self.trim(translate)
-        transcription = self.trim(transcription)
+    def deleteDictionary(self, name):
+        if self._dict.isExist(current_user, name):
+            self._dict.delete(current_user, name)
+        else:
+            raise DictionaryNotExistError
 
-        if self.isDictExist(name):
+# Words --------------------------------------------------
 
-            if self.isWordExist(name, original):
-                word = self._dicts[name].words()[original]
+    def addWord(self, dictName, original, translate,
+                transcription, time, replace=False):
+        original = functions.trim(original)
+        translate = functions.trim(translate)
+        transcription = functions.trim(transcription)
 
-                if not replace:
-                    # translate = word.translate() + ', ' + translate
-                    old = word.translate()
-                    if translate not in old.split(', '):
-                        translate += ', ' + old
-                    else:
-                        translate = old
-
-                    # if transcription and word.transcription():
-                    #     transcription += ', ' + word.transcription()
-
-                word.setTranslate(translate)
-                word.setUpdateTime(time)
-                if transcription:
-                    word.setTranscription(transcription)
-
-            else:
-                new_word = Word(original, translate, transcription, time)
-                self._dicts[name].addWord(new_word)
-
+        if self._dict.isExist(current_user, dictName):
+            self._dict.addWord(current_user, dictName, original, translate,
+                               transcription, time, replace)
             return True
+        else:
+            raise DictionaryNotExistError
 
+    def words(self, name):
+        if self._dict.isExist(current_user, name):
+            return self._dict.words(current_user, name)
         else:
             raise DictionaryNotExistError
 
     def deleteWord(self, name, original):
-        if self.isDictExist(name) and self.isWordExist(name, original):
-            self._dicts[name].deleteWord(original)
+        if self._dict.isExist(current_user, name):
+            self._dict.deleteWord(current_user, name, original)
             return True
-
-        elif not self.isDictExist(name):
+        else:
             raise DictionaryNotExistError
 
-        else:
-            raise WordNotExistError
+    def changeWord(self, name, old, new, translate, transcription, time):
+        new = functions.trim(new)
+        translate = functions.trim(translate)
+        transcription = functions.trim(transcription)
 
-    def changeWord(self, name, old_orig, orig, translate, transcription, time):
-        orig = self.trim(orig)
-        translate = self.trim(translate)
-        transcription = self.trim(transcription)
-
-        if self.isDictExist(name) and self.isWordExist(name, old_orig):
-            new_word = Word(orig, translate, transcription, time)
-            self._dicts[name].changeWord(old_orig, new_word)
+        if self._dict.isExist(current_user, name):
+            self._dict.changeWord(current_user, name, old, new,
+                                  translate, transcription, time)
             return True
-
-        elif not self.isDictExist(name):
-            raise DictionaryNotExistError
-
         else:
-            raise WordNotExistError
-
-    def isDictExist(self, name):
-        return name in self._dicts
-
-    def isWordExist(self, name, original):
-        if not self.isDictExist(name):
             raise DictionaryNotExistError
-        return original in self._dicts.get(name).words()
 
-    def trim(self, string):
-        string = re.sub('\s\s+', ' ', string.strip())
-        return re.sub('([\S]) ?(,) ?([\S])', r'\1\2 \3', string)
+    def quantity(self, name):
+        """Quantity of words in dictionary"""
+        return len(self.words(name))
+
+    def importWords(self, name, words, time):
+        if self._dict.isExist(current_user, name):
+            words = words.split('\r\n')
+            addedWords = list()
+
+            for word in words:
+                word = functions.search(consts.regexp.IMPORT, word)
+                if word:
+                    self.addWord(name, word[1], word[2], '', time)
+
+                    if word[1] not in addedWords:
+                        addedWords.append(word[1])
+            return addedWords
+        else:
+            raise DictionaryNotExistError
+
+# Test --------------------------------------------------
 
     def testInit(self, name, period=consts.period.ALL_I):
+        self._testManager.init(current_user.id)
+
         if name == consts.MISTAKE_DICT:
             initDict = dict()
-            for questions, answer in self._testManager.mistakes().items():
+            for questions, answer in\
+                    self._testManager.mistakes(current_user.id).items():
                 initDict.update({questions: answer})
+                initDict.update({answer: questions})
 
         else:
             if name == consts.ALL_DICTS:
-                words = self.allWords()
-            elif self.isDictExist(name):
-                words = self.words(name)
+                words = self._dict.allWords(current_user)
             else:
-                raise DictionaryNotExistError
+                words = self.words(name)
 
+            # filter words by period
             period = int(period)
             if period >= 0:
                 lastTime = words[-1].get('updateTime')
@@ -215,7 +158,8 @@ class SmartDictionary(object):
                 new_words = list()
 
                 for word in words:
-                    if (lastTime - date.fromtimestamp(word['updateTime'])).days <= period:
+                    if (lastTime - date.fromtimestamp(word['updateTime'])).\
+                            days <= period:
                         new_words.append(word)
                 words = new_words
 
@@ -225,55 +169,58 @@ class SmartDictionary(object):
                 initDict.update({word.get('original'): word.get('translate')})
 
             for word in words:
-                # initDict.update({word.get('translate').split(', ')[0]: word.get('original')})
                 initDict.update({word.get('translate'): word.get('original')})
 
-        self._testManager.setQuestions(initDict)
-        self._testManager.setTempQuestions(list(initDict.keys()))
+        self._testManager.setQuestions(current_user.id, initDict)
+        self._testManager.setTempQuestions(current_user.id,
+                                           list(initDict.keys()))
 
         return True
 
     def isTestInit(self):
-        return True if self._testManager._questions else False
+        return True if self._testManager.isInit(current_user.id) else False
 
     def nextQuestion(self):
-        questions = self._testManager.tempQuestions()
+        questions = self._testManager.tempQuestions(current_user.id)
 
         if questions:
             question = questions.pop(0)
             # questions is refer to _tempQuestions
-            # self._testManager.setTempQuestions(questions)
+            # self._testManager.setTempQuestions(current_user.id, questions)
             return {'question': question,
-                    'progress': self._testManager.progress()}
+                    'progress': self._testManager.progress(current_user.id)}
 
         else:
             return {}
 
     def addAnswer(self, answer):
         # answer - tuple()
-        self._testManager.setAnswer((self.trim(answer[0]),
-                                     self.trim(answer[1])))
+        self._testManager.setAnswer(current_user.id,
+                                    (functions.trim(answer[0]),
+                                     functions.trim(answer[1])))
 
     def testResult(self):
-        return self._testManager.check()
+        return self._testManager.check(current_user.id)
 
     def mistakes(self):
-        # return True if self._testManager.mistakes() else False
-        return self._testManager.mistakes()
+        return self._testManager.mistakes(current_user.id)
 
-    def importWords(self, dictionary, words, updateTime):
-        if self.isDictExist(dictionary):
-            words = words.split('\r\n')
-            addedWords = list()
+# Users --------------------------------------------------
 
-            for word in words:
-                word = re.search('([a-zA-Z]+)\s*-\s*((,? *[а-яА-ЯёЁ]+)+)',
-                                 self.trim(word))
-                if word:
-                    self.addWord(dictionary, word[1], word[2], '', updateTime)
+    def registerUser(self, name, password):
+        name = functions.trim(name)
 
-                    if word[1] not in addedWords:
-                        addedWords.append(word[1])
-            return addedWords
+        if self._user.register(name, password):
+            self.loginUser(name, password, True)
+            self.addDictionary('Dict', 'Default dictionary')
         else:
-            raise DictionaryNotExistError
+            raise UserAlreadyExistError
+
+    def loginUser(self, name, password, remember):
+        name = functions.trim(name)
+
+        if not self._user.login(name, password, remember):
+            raise InvalidUsernameOrPasswordError
+
+    def logoutUser(self):
+        logout_user()

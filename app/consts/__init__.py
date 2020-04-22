@@ -32,3 +32,4 @@ class regexp:
     RU_EN_FULL = RU_EN_BASE + '+$'
     RU_EN_EMPTY = RU_EN_BASE + '*$'
     RU_EN_MSG = 'Latin and russian letters and spaces only.'
+    IMPORT = '([a-zA-Z ]+)\s*-\s*((,? *[а-яА-ЯёЁ]+)+)'

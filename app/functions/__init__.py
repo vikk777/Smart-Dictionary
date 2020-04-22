@@ -1,5 +1,7 @@
 from flask import flash
 from datetime import date
+import re
+import app.consts as consts
 
 
 # Add form errors messages to flash
@@ -25,16 +27,35 @@ def choicesForSelect(dictionary, addAll=False):
 
     # Add "All" option, if dictionaries more then 1
     if len(choices) > 1 and addAll:
-        choices.append(('__all__', 'All'))
+        choices.append((consts.ALL_DICTS, 'All'))
 
     return choices
 
 
+# Get dict {'word': date}
 def wordsUpdateTime(words):
     timeDict = dict()
     updateTime = date.fromtimestamp(0)
     for word in words:
         if updateTime != date.fromtimestamp(word['updateTime']):
             updateTime = date.fromtimestamp(word['updateTime'])
-            timeDict.update({word['original']: updateTime.strftime('%d %b\'%y')})
+            timeDict.update({word['original']:
+                             updateTime.strftime('%d %b\'%y')})
     return timeDict
+
+
+# Remove 2+ spaces, and align commas
+def trim(string):
+    pattern = r',+ +,+|\s\s+|,,+|^[, ]+|[, ]+$'
+
+    while re.search(pattern, string):
+        string = re.sub(r'\s\s+', ' ', string)
+        string = re.sub(r',,+|,* +,+', ',', string)
+        string = re.sub(r'^[, ]+|[, ]+$', '', string)
+
+    string = re.sub(r'(\w) (,)', r'\1\2', string)
+    return re.sub(r'(,)(\w)', r'\1 \2', string)
+
+
+def search(pattern, string):
+    return re.search(pattern, trim(string))

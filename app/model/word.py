@@ -1,30 +1,54 @@
+from app import db
+from .word_model import WordModel
+
+
 class Word():
-    def __init__(self, original, translate, transcription, updateTime):
-        self._original = original
-        self._translate = translate
-        self._transcription = transcription
-        self._updateTime = updateTime
+    """Class-decorator upon database.WordModel"""
 
-    def setOriginal(self, original):
-        self._original = original
+    def add(self, dictionary, original, translate,
+            transcription, time):
+        word = WordModel(dictionary=dictionary, original=original,
+                         translate=translate, transcription=transcription,
+                         updateTime=time)
+        db.session.add(word)
+        db.session.commit()
+        return True
 
-    def setTranslate(self, translate):
-        self._translate = translate
+    def all(self, dictionary):
+        return WordModel.query.filter_by(dictionary=dictionary).all()
 
-    def setTranscription(self, transcription):
-        self._transcription = transcription
+    def get(self, dictionary, original):
+        return WordModel.query.filter_by(dictionary=dictionary,
+                                         original=original).first()
 
-    def setUpdateTime(self, updateTime):
-        self._updateTime = updateTime
+    def delete(self, dictionary, original):
+        word = self.get(dictionary, original)
+        db.session.delete(word)
+        db.session.commit()
+        return True
 
-    def original(self):
-        return self._original
+    def change(self, dictionary, old, new, translate,
+               transcription, time, replace):
+        word = self.get(dictionary, old)
+        word.updateTime = time
 
-    def translate(self):
-        return self._translate
+        if old != new:
+            word.original = new
 
-    def transcription(self):
-        return self._transcription
+        if replace:
+            word.translate = translate
+        else:
+            translates = word.translate.split(', ')
 
-    def updateTime(self):
-        return self._updateTime
+            for item in translate.split(', '):
+                if item not in translates:
+                    word.translate += ', ' + item
+
+        if transcription:
+            word.transcription = transcription
+
+        db.session.commit()
+        return True
+
+    def isExist(self, dictionary, original):
+        return True if self.get(dictionary, original) else False

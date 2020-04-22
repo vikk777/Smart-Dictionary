@@ -1,7 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField, SubmitField, SelectField, BooleanField
-from wtforms.validators import DataRequired, Regexp
+from wtforms import StringField, HiddenField,\
+    SubmitField, SelectField, BooleanField
+from wtforms.validators import DataRequired, Regexp, ValidationError
 import app.consts as consts
+from ..functions import trim
 
 
 class WordBaseForm(FlaskForm):
@@ -32,6 +34,11 @@ class WordFullForm(WordBaseForm):
         render_kw={'placeholder': 'transcription'})
 
     replace = BooleanField(label='Replace')
+
+    def validate_translate(self, translate):
+        if not trim(translate.data):
+            raise ValidationError('You did mistake in {}.'.
+                                  format(translate.data))
 
 
 class AddWordForm(WordFullForm):

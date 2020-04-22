@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate, MigrateCommand
+from flask_migrate import Migrate
 from flask_login import LoginManager
 import config
 
@@ -10,7 +10,7 @@ app.config.from_object('config')
 # Initial extensions
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
+loginManager = LoginManager(app)
+loginManager.login_view = 'login'
 
-from app import views, database
+from app import views

@@ -9,5 +9,10 @@ class DictionaryAlreadyExistError(Exception):
 class WordNotExistError(Exception):
     pass
 
+
 class UserAlreadyExistError(Exception):
+    pass
+
+
+class InvalidUsernameOrPasswordError(Exception):
     pass
