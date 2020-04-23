@@ -4,13 +4,12 @@ from .user import User
 from ..sderrors import DictionaryNotExistError,\
     DictionaryAlreadyExistError,\
     InvalidUsernameOrPasswordError,\
-    UserAlreadyExistError
-# import re
+    UserAlreadyExistError,\
+    QuestionAlreadyAddedError
 import app.functions as functions
 import app.consts as consts
 from datetime import date
 from flask_login import logout_user, current_user
-# login_user
 
 # !!! trim username
 
@@ -136,13 +135,17 @@ class SmartDictionary():
 
     def testInit(self, name, period=consts.period.ALL_I):
         self._testManager.init(current_user.id)
+        initDict = dict()
 
-        if name == consts.MISTAKE_DICT:
-            initDict = dict()
-            for questions, answer in\
+        if name == consts.ADDED_WORDS:
+            initDict = self._testManager.questions(current_user.id)
+
+        # dictionary of mistakes
+        elif name == consts.MISTAKE_DICT:
+            for question, answer in\
                     self._testManager.mistakes(current_user.id).items():
-                initDict.update({questions: answer})
-                initDict.update({answer: questions})
+                initDict.update({question: answer})
+                # initDict.update({answer: question})
 
         else:
             if name == consts.ALL_DICTS:
@@ -163,13 +166,13 @@ class SmartDictionary():
                         new_words.append(word)
                 words = new_words
 
-            initDict = dict()
-
             for word in words:
                 initDict.update({word.get('original'): word.get('translate')})
 
-            for word in words:
-                initDict.update({word.get('translate'): word.get('original')})
+        reverse = dict()
+        for question, answer in initDict.items():
+            reverse.update({answer: question})
+        initDict.update(reverse)
 
         self._testManager.setQuestions(current_user.id, initDict)
         self._testManager.setTempQuestions(current_user.id,
@@ -179,6 +182,16 @@ class SmartDictionary():
 
     def isTestInit(self):
         return True if self._testManager.isInit(current_user.id) else False
+
+    def addQuestion(self, question, answer):
+        if not self.isTestInit():
+            self._testManager.init(current_user.id)
+
+        if not self._testManager.haveQuestion(current_user.id, question):
+            self._testManager.addQuestion(current_user.id, question, answer)
+            return True
+        else:
+            raise QuestionAlreadyAddedError
 
     def nextQuestion(self):
         questions = self._testManager.tempQuestions(current_user.id)

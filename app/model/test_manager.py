@@ -19,10 +19,21 @@ class TestManager():
 
     def isInit(self, userId):
         return True if self._questions.get(userId) else False
+        # and self._tempQuestions.get(userId) else False
 
     def setQuestions(self, userId, questions):
         self._questions[userId] = questions
         return True
+
+    def addQuestion(self, userId, question, answer):
+        self._questions[userId].update({question: answer})
+        return True
+
+    def haveQuestion(self, userId, question):
+        return True if self._questions[userId].get(question) else False
+
+    def questions(self, userId):
+        return self._questions[userId]
 
     def setAnswer(self, userId, answer):
         self._answers[userId].update({answer[0]: answer[1]})
@@ -65,7 +76,7 @@ class TestManager():
         # right answer on second question
         for mistake in tempMistakes:
             if not self._user.haveMistake(userId, mistake['question']):
-                    self._user.addMistake(userId, mistake['question'])
+                self._user.addMistake(userId, mistake['question'])
 
         # self._questions.get(userId).clear()
         # self._answers.get(userId).clear()

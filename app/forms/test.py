@@ -20,3 +20,9 @@ class TestNextForm(FlaskForm):
 
 class CorrectMistakesForm(FlaskForm):
     correctMistakes = SubmitField('Correct the mistakes')
+
+
+class AddQuestionForm(FlaskForm):
+    question = HiddenField(validators=[DataRequired()])
+    answer = HiddenField(validators=[DataRequired()])
+    addQuestion = SubmitField('Add to test')

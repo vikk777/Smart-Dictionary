@@ -72,6 +72,13 @@
                 {{ forms['deleteWord'].original(value=word['original']) }}
                 {{ forms['deleteWord'].dictionary(value=viewDict[0]) }}
             </form>
+
+            <form action="{{ url_for('addQuestion') }}" method="post">
+                {{ forms['addQuestion'].csrf_token }}
+                {{ forms['addQuestion'].addQuestion() }}
+                {{ forms['addQuestion'].question(value=word['original']) }}
+                {{ forms['addQuestion'].answer(value=word['translate']) }}
+            </form>
         {% endfor %}
     {% endif %}
 

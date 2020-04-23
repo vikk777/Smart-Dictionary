@@ -16,3 +16,7 @@ class UserAlreadyExistError(Exception):
 
 class InvalidUsernameOrPasswordError(Exception):
     pass
+
+
+class QuestionAlreadyAddedError(Exception):
+    pass

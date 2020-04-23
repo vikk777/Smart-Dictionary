@@ -8,14 +8,16 @@ from .forms.word import AddWordForm,\
 from .forms.dictionary import AddDictionaryForm,\
     DeleteDictionaryForm,\
     ChangeDictionaryForm
-from .forms.test import TestStartForm, TestNextForm, CorrectMistakesForm
+from .forms.test import TestStartForm, TestNextForm,\
+    CorrectMistakesForm, AddQuestionForm
 from .forms.import_words import ImportForm
 from .forms.login import LoginForm, RegisterForm
 from .sderrors import DictionaryNotExistError,\
     DictionaryAlreadyExistError,\
     WordNotExistError,\
     UserAlreadyExistError,\
-    InvalidUsernameOrPasswordError
+    InvalidUsernameOrPasswordError,\
+    QuestionAlreadyAddedError
 import app.functions as functions
 import time
 import app.consts as consts
@@ -54,6 +56,7 @@ def dictionaries():
         forms['changeWord'] = ChangeWordForm()
         forms['deleteWord'] = DeleteWordForm()
         forms['addWord'] = AddWordForm()
+        forms['addQuestion'] = AddQuestionForm()
 
     return render_template(
         'dictionaries.html',
@@ -237,8 +240,17 @@ def deleteWord():
 def startTest():
     forms = dict()
     forms['startTest'] = TestStartForm()
-    forms['startTest'].dictionary.choices = functions.choicesForSelect(
+    forms['startTest'].dictionary.choices = list()
+
+    if smartDict.isTestInit():
+        forms['startTest'].dictionary.choices.append(
+            (consts.ADDED_WORDS, consts.ADDED_WORDS_S))
+
+    forms['startTest'].dictionary.choices += functions.choicesForSelect(
         smartDict, addAll=True)
+
+    print(forms['startTest'].dictionary.choices)
+
     forms['startTest'].period.choices = [
         (consts.period.ALL_I, consts.period.ALL_S),
         (consts.period.LAST_DAY_I, consts.period.LAST_DAY_S),
@@ -271,6 +283,27 @@ def startTest():
                            mistakes=mistakes)
 
 
+@app.route('/test/add-question', methods=['POST', 'GET'])
+@login_required
+def addQuestion():
+    form = AddQuestionForm()
+
+    if form.validate_on_submit():
+        question = form.question.data
+        answer = form.answer.data
+        try:
+            smartDict.addQuestion(question, answer)
+            flash('Word {0} - {1} was added to Test.'.format(question, answer))
+        except QuestionAlreadyAddedError:
+            flash('Word {0} - {1} have already added to Test.'
+                  .format(question, answer))
+
+    else:  # form not valid
+        functions.flashErrors(form)
+
+    return redirect(request.referrer)
+
+
 @app.route('/test/', methods=['POST', 'GET'])
 @login_required
 def test():
@@ -282,7 +315,7 @@ def test():
 
     if smartDict.isTestInit():
         if forms['testNext'].validate_on_submit():
-            answer = forms['testNext'].answer.data
+            answer = forms['testNext'].answer.data or ''
             smartDict.addAnswer((question['question'], answer))
         else:
             functions.flashErrors(forms['testNext'])

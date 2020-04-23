@@ -1,5 +1,7 @@
 MISTAKE_DICT = '__mistakes__'
 ALL_DICTS = '__all__'
+ADDED_WORDS = '__added_words__'
+ADDED_WORDS_S = 'Added words'
 
 WORD_ADDED = 'Word {0} was added to {1}.'
 WORD_CHANGED = 'Word {0} was changed.'
