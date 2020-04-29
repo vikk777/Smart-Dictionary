@@ -20,4 +20,4 @@ class LoginForm(LoginBase):
 
 
 class RegisterForm(LoginBase):
-    submit = SubmitField('Register')
+    submit = SubmitField('Sign Up')

@@ -1,15 +1,43 @@
 {% extends "base-page.html" %}
+{% import 'macros.j2' as macros %}
+
 
 {% block title %}
     Import words
 {% endblock %}
 
-{% block content %}
+{% block page_header %}
+    {# <div class="row"> #}
+        {# <div class="col-sm-8 col-sm-offset-2"> #}
+            
+        {# </div> #}
+    {# </div> #}
+{% endblock %}
+
+{% block app_content %}
+    <h2>
+        Import words
+        <small>
+            by the template
+        </small>
+    </h2>
+    {{ super() }}
     {% if form.dictionary.choices %}
         <form action="" method="post">
-            {% for field in form %}
-                {{ field }}
-            {% endfor %}
+            {{ form.csrf_token }}
+            {# <div class="row"> #}
+                {# <div class="col-sm-8 col-sm-offset-2"> #}
+                    {{ macros.renderField(form.words) }}
+                {# </div> #}
+            {# </div> #}
+            <div class="row">
+                <div class="col-sm-6">
+                    {{ macros.renderField(form.dictionary) }}
+                </div>
+                <div class="col-sm-6">
+                    {{ macros.renderField(form.importWords) }}
+                </div>
+            </div>
         </form>
         {% else %}
             <span>Please, for adding words create a </span>
@@ -18,11 +46,4 @@
             </a>
     {% endif %}
 
-    {{ macros.flashed_messages() }}
-
-    {# {% if addedWords %}
-        {% for word in addedWords %}
-            <p>{{ word }}</p>
-        {% endfor %}
-    {% endif %} #}
 {% endblock %}

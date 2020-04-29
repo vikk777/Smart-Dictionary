@@ -1,0 +1,112 @@
+{% extends "base-page.html" %}
+{% import 'macros.j2' as macros %}
+
+
+{% block title %}
+    Edit {{ viewDict[0] }}
+{% endblock %}
+
+{% block app_content %}
+    <h2 class="small-glyphicons">
+        Edit
+        <small>
+            {{ viewDict[0]|capitalize if viewDict }}
+            <a href="{{ url_for('viewDictionary', name=viewDict[0]) }}" class="glyphicon glyphicon-eye-open" title="View"></a>
+        </small>
+    </h2>
+    {{ super() }}
+
+    {% if viewDict %}
+        <div class="row">
+            <div class="col-sm-4">
+                <form action="{{ url_for('changeDictionary') }}" method="post">
+                    {{ macros.renderField(forms['changeDict'].csrf_token) }}
+                    {{ macros.renderField(forms['changeDict'].name, value=viewDict[0]) }}
+                    {{ macros.renderField(forms['changeDict'].description, value=viewDict[1]) }}
+                    {{ macros.renderField(forms['changeDict'].changeDict) }}
+                    {{ macros.renderField(forms['changeDict'].old, value=viewDict[0]) }}
+                    {# {{ forms['changeDict'].csrf_token }} #}
+                    {# {{ forms['changeDict'].name(class='form-control', value=viewDict[0]) }} #}
+                    {# {{ forms['changeDict'].description(class='form-control', value=viewDict[1]) }} #}
+                    {# <button type="submit" class="btn btn-link glyphicon glyphicon-ok" title="Change name and description"></button> #}
+                    {# {{ forms['changeDict'].changeDict() }} #}
+                    {# {{ forms['changeDict'].old(value=viewDict[0]) }} #}
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <h4>Words: <small>{{ viewDict[2] }}</small></h4>
+                {% for word in words %}
+                    {% if word['original'] in updateTime %}
+                        {% if not loop.first %}
+                            </blockquote>
+                        {% endif %}
+                        <span class="{# lead #}">{{ updateTime.get(word['original']) }}</span>
+                        <blockquote>
+                    {% endif %}
+                    <a name="{{ word['original'] }}"></a>
+                    <form class="form-implicit small-glyphicons" action="{{ url_for('changeWord', next=url_for('editDictionary', name=viewDict[0], _anchor=word['original'])) }}" method="post">
+                        {{ forms['changeWord'].csrf_token }}
+                        {{ forms['changeWord'].original(value=word['original']) }}
+                        —
+                        {{ forms['changeWord'].translate(value=word['translate']) }}
+                        {{ forms['changeWord'].old(value=word['original']) }}
+                        {{ forms['changeWord'].dictionary(value=viewDict[0]) }}
+                        <button type="submit" class="btn btn-link glyphicon glyphicon-ok" title="Change word"></button>
+                        <button form='deleteWordForm' type="submit" class="btn btn-link glyphicon glyphicon-trash" title="Delete word"></button>
+                        {# {{ forms['changeWord'].changeWord() }} #}
+                    </form>
+
+                    <form id="deleteWordForm" action="{{ url_for('deleteWord', next=url_for('editDictionary', name=viewDict[0])) }}" method="post">
+                        {{ forms['deleteWord'].csrf_token }}
+                        {# {{ forms['deleteWord'].deleteWord() }} #}
+                        {{ forms['deleteWord'].original(value=word['original']) }}
+                        {{ forms['deleteWord'].dictionary(value=viewDict[0]) }}
+                    </form>
+                {% endfor %}
+            {# </blockquote> #}
+
+                {# <blockquote> #}
+                    <form class="form-implicit small-glyphicons" action="{{ url_for('addWordWrapper') }}" method="post">
+                        {{ forms['addWord'].csrf_token }}
+                        {{ forms['addWord'].dictionary(value=viewDict[0]) }}
+                        {# <div class="form-group col-sm-4"> #}
+                            {{ forms['addWord'].original(autofocus=True) }} —
+                        {# </div> #}
+                        {# <div class="col-sm-4"> #}
+                            {{ forms['addWord'].translate() }}
+                        {# </div> #}
+                        <button type="submit" class="btn btn-link glyphicon glyphicon-plus" title="Add word"></button>
+                        <span class=" glyphicon">
+                            {# {{ macros.renderField(forms['addWord'].replace) }} #}
+                            {# {{ forms['addWord'].replace.label }} #}
+                            {{ forms['addWord'].replace(title='Replace') }}
+                        </span>
+                        {# <div class="text-center col-sm-4 col-sm-offset-4"> #}
+                            {# {{ macros.renderField(forms['addWord'].addWord) }} #}
+                        {# </div> #}
+{#                         {{ forms['addWord'].original() }}
+                        {{ forms['addWord'].translate() }}
+                        {{ forms['addWord'].transcription() }}
+                        {{ forms['addWord'].replace.label }}
+                        {{ forms['addWord'].replace() }}
+                        {{ forms['addWord'].dictionary(value=viewDict[0]) }}
+                        {{ forms['addWord'].addWord() }} #}
+                    </form>
+                </blockquote>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <form action="{{ url_for('deleteDictionary') }}" method="post">
+                            {{ macros.renderField(forms['deleteDict'].csrf_token) }}
+                            {{ macros.renderField(forms['deleteDict'].name, value=viewDict[0]) }}
+                            {{ macros.renderField(forms['deleteDict'].deleteDict) }}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- row -->
+    {% endif %}
+{% endblock %}

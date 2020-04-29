@@ -1,15 +1,22 @@
 {% extends "base-page.html" %}
+{% import 'macros.j2' as macros %}
+
 
 {% block title %}
     Start test
 {% endblock %}
 
-{% block content %}
+{% block app_content %}
+    <h2>
+        Test
+        <small>
+            Choice the dictionary and the period
+        </small>
+    </h2>
+    {{ super() }}
     {% if forms['startTest'].dictionary.choices %}
-        <form action="{# url_for('test') #}" method="post">
-            {% for field in forms['startTest'] %}
-                {{ field }}
-            {% endfor %}
+        <form class="form-inline" action="?do=start" method="post">
+            {{ macros.renderForm(forms['startTest']) }}
         </form>
     {% else %}
         <p>
@@ -19,17 +26,15 @@
     {% endif %}
 
     {% if mistakes %}
-        <form action="" method="post">
-                {% for field in forms['correctMistakes'] %}
-                    {{ field }}
-                {% endfor %}
+        <h4>My mistakes:</h4>
+        <blockquote>
+            {% for question, answer in mistakes.items() %}
+                <p>{{ question|capitalize }} — {{ answer|capitalize}}</p>
+            {% endfor %}
+        </blockquote>
+
+        <form class='form-inline' action="?do=mistakes" method="post">
+            {{ macros.renderForm(forms['correctMistakes']) }}
         </form>
-
-        <p>You did mistake in this words:</p>
-        {% for question, answer in mistakes.items() %}
-            <p>{{question}} - {{ answer }}</p>
-        {% endfor %}
     {% endif %}
-
-    {{ macros.flashed_messages() }}
 {% endblock %}

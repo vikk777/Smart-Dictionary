@@ -13,6 +13,9 @@ DICT_CHANGED = 'Dictionary {0} was changed.'
 DICT_NOT_EXIST = 'Dictionary {0} doesn\'t exist!'
 DICT_EXIST = 'Dictionary {0} already exist!'
 
+SUCCESS = 'info'
+ERROR = 'danger'
+
 
 class period:
     ALL_I = '-1'
@@ -23,6 +26,15 @@ class period:
     LAST_WEEK_S = 'Last week'
     LAST_MONTH_I = '30'
     LAST_MONTH_S = 'Last month'
+
+
+class active:
+    WORD = 'word'
+    DICT = 'dict'
+    TEST = 'test'
+    IMPORT = 'import'
+    REGISTER = 'register'
+    LOGIN = 'login'
 
 
 class regexp:

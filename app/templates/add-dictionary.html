@@ -1,15 +1,23 @@
 {% extends "base-page.html" %}
+{% import 'macros.j2' as macros %}
 
 {% block title %}
     Add dictionary
 {% endblock %}
 
-{% block content %}
-    <form action="" method="post">
-        {% for field in form %}
-            {{ field }}
-        {% endfor %}
-    </form>
-
-    {{ macros.flashed_messages() }}
+{% block app_content %}
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+            <h2>
+                Create
+                <small>
+                    dictionary
+                </small>
+            </h2>
+            {{ super() }}
+            <form action="" method="post">
+                {{ macros.renderForm(form) }}
+            </form>
+        </div>
+    </div>
 {% endblock %}

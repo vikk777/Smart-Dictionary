@@ -1,5 +1,23 @@
-{% include 'header.html' %}
-{% import 'macros.j2' as macros %}
-{# {% include 'navigation.html' %} #}
-{% block content %}{% endblock %}
+{% extends "bootstrap/base.html" %}
+{% block title %}Smart Dictinary{% endblock %}
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css?family=Comfortaa|PT+Sans+Narrow&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('.static', filename='/images/favicon.ico') }}" type="image/x-icon">
+{% endblock %}
+{% include 'navigation.html' %}
+{% block content %}
+    <div class="container">
+        <div class="wrapper">
+            <div class="row">
+                <div class="col-sm-8 col-sm-offset-2">
+                    {% block app_content %}
+                        {% import 'macros.j2' as macros %}
+                        {{ macros.flashedMessages() }}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
 {% include 'footer.html' %}
+{% endblock %}

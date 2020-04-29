@@ -1,21 +1,20 @@
 {% extends "base-page.html" %}
+{% import 'macros.j2' as macros %}
 
 {% block title %}
-    Login
+    Sign In
 {% endblock %}
 
-{% block content %}
-    {{ macros.flashed_messages() }}
-    {% if current_user.is_authenticated %}
-        Hello, {{ current_user.name }}
-    {% endif %}
-    <form action="" method="post">
-        {% for field in form %}
-            {% if field.name == 'remember' %}
-                {{ field.label }}
-            {% endif %}
-            {{ field }}
-        {% endfor %}
-    </form>
-
+{% block app_content %}
+<div class="row">
+    <div class="col-sm-6 col-sm-offset-3">
+        <h2>
+            Sign In
+        </h2>
+        {{ super() }}
+        <form action="" method="post">
+            {{ macros.renderForm(form) }}
+        </form>
+    </div>
+</div>
 {% endblock %}

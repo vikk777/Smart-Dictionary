@@ -15,7 +15,8 @@ class Word():
         return True
 
     def all(self, dictionary):
-        return WordModel.query.filter_by(dictionary=dictionary).all()
+        return WordModel.query.filter_by(
+            dictionary=dictionary).order_by(WordModel.updateTime).all()
 
     def get(self, dictionary, original):
         return WordModel.query.filter_by(dictionary=dictionary,

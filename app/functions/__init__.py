@@ -9,7 +9,8 @@ def flashErrors(form):
     if form.errors:
         for field in form:
             for error in field.errors:
-                flash('For field {0}: {1}'.format(field.name, error))
+                flash('For field {0}: {1}'.format(field.name, error),
+                      consts.ERROR)
 
 
 # Get dictionaries list from SmartDictionary for select tag
@@ -59,3 +60,7 @@ def trim(string):
 
 def search(pattern, string):
     return re.search(pattern, trim(string))
+
+
+def generateLink(link, text):
+    return '<a href="{0}">{1}</a>'.format(link, text)

@@ -1,30 +1,35 @@
-from . import app
+from . import app, loginManager
 from flask import request, redirect, render_template, url_for, flash
 from .model.smart_dictionary import SmartDictionary
-from .forms.word import AddWordForm,\
+from .forms.word import \
+    AddWordForm,\
     AddWordSelectForm,\
     ChangeWordForm,\
     DeleteWordForm
-from .forms.dictionary import AddDictionaryForm,\
+from .forms.dictionary import \
+    AddDictionaryForm,\
     DeleteDictionaryForm,\
     ChangeDictionaryForm
 from .forms.test import TestStartForm, TestNextForm,\
     CorrectMistakesForm, AddQuestionForm
 from .forms.import_words import ImportForm
 from .forms.login import LoginForm, RegisterForm
-from .sderrors import DictionaryNotExistError,\
+from .sderrors import \
+    DictionaryNotExistError,\
     DictionaryAlreadyExistError,\
     WordNotExistError,\
     UserAlreadyExistError,\
     InvalidUsernameOrPasswordError,\
     QuestionAlreadyAddedError
 import app.functions as functions
-import time
+from time import time
 import app.consts as consts
 from flask_login import login_required, current_user
 from werkzeug.urls import url_parse
 
 smartDict = SmartDictionary()
+loginManager.login_view = 'login'
+loginManager.login_message_category = consts.ERROR
 
 
 @app.route('/')
@@ -36,21 +41,80 @@ def index():
 @app.route('/dictionaries/', methods=['POST', 'GET'])
 @login_required
 def dictionaries():
-    view = request.args.get('view')  # dict name for view
+    # view = request.args.get('view')  # dict name for view
 
-    try:
-        words = smartDict.words(view) if view else list()
-        viewDict = smartDict.dictionary(view) if view else tuple()
-    except DictionaryNotExistError:
-        flash(consts.DICT_NOT_EXIST.format(view))
-        words = list()
-        viewDict = tuple()
+    # try:
+    #     words = smartDict.words(view) if view else list()
+    #     viewDict = smartDict.dictionary(view) if view else tuple()
+    # except DictionaryNotExistError:
+    #     flash(consts.DICT_NOT_EXIST.format(view), consts.ERROR, consts.ERROR)
+    #     words = list()
+    #     viewDict = tuple()
 
     dicts = smartDict.dictionaries()
-    updateTime = functions.wordsUpdateTime(words)
-    forms = dict()
+    total = smartDict.totalWords()
+    # updateTime = functions.wordsUpdateTime(words)
+    # forms = dict()
 
-    if view:
+    # if view:
+    #     forms['changeDict'] = ChangeDictionaryForm()
+    #     forms['deleteDict'] = DeleteDictionaryForm()
+    #     forms['changeWord'] = ChangeWordForm()
+    #     forms['deleteWord'] = DeleteWordForm()
+    #     forms['addWord'] = AddWordForm()
+    #     forms['addQuestion'] = AddQuestionForm()
+
+    return render_template(
+        'dictionaries.html',
+        dicts=dicts,
+        total=total,
+        # words=words,
+        # viewDict=viewDict,
+        # forms=forms,
+        # updateTime=updateTime,
+        active=consts.active.DICT)
+
+
+# @app.route('/dictionaries/view/<name>', methods=['POST', 'GET'])
+@app.route('/dictionaries/view/<name>', methods=['GET'])
+@login_required
+def viewDictionary(name):
+    try:
+        words = smartDict.words(name) if name else list()
+        viewDict = smartDict.dictionary(name) if name else tuple()
+        updateTime = functions.wordsUpdateTime(words)
+        form = AddQuestionForm()
+    except DictionaryNotExistError:
+        flash(consts.DICT_NOT_EXIST.format(name), consts.ERROR)
+        words = None
+        viewDict = None
+        updateTime = None
+        form = None
+
+    return render_template(
+        'view-dictionary.html',
+        words=words,
+        viewDict=viewDict,
+        form=form,
+        updateTime=updateTime,
+        active=consts.active.DICT)
+
+
+@app.route('/dictionaries/edit/<name>', methods=['POST', 'GET'])
+@login_required
+def editDictionary(name):
+    try:
+        words = smartDict.words(name) if name else list()
+        viewDict = smartDict.dictionary(name) if name else tuple()
+        updateTime = functions.wordsUpdateTime(words)
+    except DictionaryNotExistError:
+        flash(consts.DICT_NOT_EXIST.format(name), consts.ERROR)
+        words = None
+        viewDict = None
+        updateTime = None
+
+    forms = dict()
+    if name:
         forms['changeDict'] = ChangeDictionaryForm()
         forms['deleteDict'] = DeleteDictionaryForm()
         forms['changeWord'] = ChangeWordForm()
@@ -59,12 +123,12 @@ def dictionaries():
         forms['addQuestion'] = AddQuestionForm()
 
     return render_template(
-        'dictionaries.html',
-        dicts=dicts,
+        'edit-dictionary.html',
         words=words,
         viewDict=viewDict,
         forms=forms,
-        updateTime=updateTime)
+        updateTime=updateTime,
+        active=consts.active.DICT)
 
 
 @app.route('/dictionaries/add/', methods=['POST', 'GET'])
@@ -78,15 +142,16 @@ def addDictionary():
 
         try:
             smartDict.addDictionary(name, description)
-            flash(consts.DICT_ADDED.format(name))
-            return redirect(url_for('dictionaries', view=name))
+            flash(consts.DICT_ADDED.format(name), consts.SUCCESS)
+            return redirect(url_for('viewDictionary', name=name))
 
         except DictionaryAlreadyExistError:
-            flash(consts.DICT_EXIST.format(name))
+            flash(consts.DICT_EXIST.format(name), consts.ERROR, consts.ERROR)
     else:  # form not valid
         functions.flashErrors(form)
 
-    return render_template('add-dictionary.html', form=form)
+    return render_template('add-dictionary.html', form=form,
+                           active=consts.active.DICT)
 
 
 @app.route('/dictionaries/delete/', methods=['POST'])
@@ -99,11 +164,11 @@ def deleteDictionary():
 
         try:
             smartDict.deleteDictionary(name)
-            flash(consts.DICT_DEL.format(name))
+            flash(consts.DICT_DEL.format(name), consts.SUCCESS)
             return redirect(url_for('dictionaries'))
 
         except DictionaryNotExistError:
-            flash(consts.DICT_NOT_EXIST.format(name))
+            flash(consts.DICT_NOT_EXIST.format(name), consts.ERROR)
 
     else:  # form not valid
         functions.flashErrors(form)
@@ -123,13 +188,13 @@ def changeDictionary():
 
         try:
             smartDict.changeDictionary(old, name, description)
-            flash(consts.DICT_CHANGED.format(name))
-            return redirect(url_for('dictionaries', view=name))
+            flash(consts.DICT_CHANGED.format(name), consts.SUCCESS)
+            return redirect(url_for('editDictionary', name=name))
 
         except DictionaryAlreadyExistError:
-            flash(consts.DICT_EXIST.format(name))
+            flash(consts.DICT_EXIST.format(name), consts.ERROR)
         except DictionaryNotExistError:
-            flash(consts.DICT_NOT_EXIST.format(old))
+            flash(consts.DICT_NOT_EXIST.format(old), consts.ERROR)
 
     else:  # form not valid
         functions.flashErrors(form)
@@ -145,6 +210,7 @@ def addWord(wrapped=False):
     """
     form = AddWordSelectForm()
     form.dictionary.choices = functions.choicesForSelect(smartDict)
+    total = smartDict.totalWords()
 
     if form.validate_on_submit():
         dictionary = form.dictionary.data
@@ -152,17 +218,19 @@ def addWord(wrapped=False):
         translate = form.translate.data
         transcription = form.transcription.data
         replace = form.replace.data
-        createTime = time.time()
+        createTime = time()
 
         try:
             smartDict.addWord(dictionary, original,
                               translate, transcription,
                               createTime, replace)
             flash(consts.WORD_ADDED.format(
-                original, dictionary))
+                original, functions.generateLink(
+                    url_for('viewDictionary', name=dictionary), dictionary)),
+                  consts.SUCCESS)
 
         except DictionaryNotExistError:
-            flash(consts.DICT_NOT_EXIST.format(dictionary))
+            flash(consts.DICT_NOT_EXIST.format(dictionary), consts.ERROR)
 
         return wrapped if wrapped else redirect(url_for('addWord'))
 
@@ -170,7 +238,8 @@ def addWord(wrapped=False):
         functions.flashErrors(form)
 
     return wrapped if wrapped\
-        else render_template('add-word.html', form=form)
+        else render_template('add-word.html', form=form,
+                             total=total, active=consts.active.WORD)
 
 
 @app.route('/dictionaries/add-word/', methods=['POST'])
@@ -184,6 +253,10 @@ def addWordWrapper():
 @login_required
 def changeWord():
     form = ChangeWordForm()
+    next_page = request.args.get('next')
+
+    if not next_page or url_parse(next_page).netloc != '':
+        next_page = url_for('dictionaries')
 
     if form.validate_on_submit():
         old = form.old.data
@@ -191,29 +264,34 @@ def changeWord():
         translate = form.translate.data
         transcription = form.transcription.data
         dictionary = form.dictionary.data
-        updateTime = time.time()
+        updateTime = time()
 
         try:
             smartDict.changeWord(dictionary, old, original,
                                  translate, transcription, updateTime)
-            flash(consts.WORD_CHANGED.format(old))
-            return redirect(url_for('dictionaries', view=dictionary))
+            flash(consts.WORD_CHANGED.format(old), consts.SUCCESS)
+            # return redirect(url_for('editDictionary', name=dictionary))
+            return redirect(next_page)
 
         except DictionaryNotExistError:
-            flash(consts.DICT_NOT_EXIST.format(dictionary))
+            flash(consts.DICT_NOT_EXIST.format(dictionary), consts.ERROR)
         except WordNotExistError:
-            flash(consts.WORD_NOT_EXIST.format(old))
+            flash(consts.WORD_NOT_EXIST.format(old), consts.ERROR)
 
     else:  # form not valid
         functions.flashErrors(form)
 
-    return redirect(request.referrer)
+    return redirect(next_page)
 
 
 @app.route('/dictionaries/delete-word/', methods=['POST'])
 @login_required
 def deleteWord():
     form = DeleteWordForm()
+    next_page = request.args.get('next')
+
+    if not next_page or url_parse(next_page).netloc != '':
+        next_page = url_for('dictionaries')
 
     if form.validate_on_submit():
         dictionary = form.dictionary.data
@@ -221,23 +299,24 @@ def deleteWord():
 
         try:
             smartDict.deleteWord(dictionary, original)
-            flash(consts.WORD_DEL.format(original))
-            return redirect(url_for('dictionaries', view=dictionary))
+            flash(consts.WORD_DEL.format(original), consts.SUCCESS)
+            return redirect(url_for('editDictionary', name=dictionary))
 
         except DictionaryNotExistError:
-            flash(consts.DICT_NOT_EXIST.format(dictionary))
+            flash(consts.DICT_NOT_EXIST.format(dictionary), consts.ERROR)
         except WordNotExistError:
-            flash(consts.WORD_NOT_EXIST.format(original))
+            flash(consts.WORD_NOT_EXIST.format(original), consts.ERROR)
 
     else:  # form not valid
         functions.flashErrors(form)
 
-    return redirect(request.referrer)
+    return redirect(next_page)
 
 
 @app.route('/test/start/', methods=['POST', 'GET'])
 @login_required
 def startTest():
+    do = request.args.get('do')
     forms = dict()
     forms['startTest'] = TestStartForm()
     forms['startTest'].dictionary.choices = list()
@@ -249,8 +328,6 @@ def startTest():
     forms['startTest'].dictionary.choices += functions.choicesForSelect(
         smartDict, addAll=True)
 
-    print(forms['startTest'].dictionary.choices)
-
     forms['startTest'].period.choices = [
         (consts.period.ALL_I, consts.period.ALL_S),
         (consts.period.LAST_DAY_I, consts.period.LAST_DAY_S),
@@ -261,7 +338,7 @@ def startTest():
     if mistakes:
         forms['correctMistakes'] = CorrectMistakesForm()
 
-    if 'startTest' in request.form:
+    if do == 'start':
         if forms['startTest'].validate_on_submit():
             try:
                 dictionary = forms['startTest'].dictionary.data
@@ -270,38 +347,45 @@ def startTest():
                 return redirect(url_for('test'))
 
             except DictionaryNotExistError:
-                flash(consts.DICT_NOT_EXIST.format(dictionary))
+                flash(consts.DICT_NOT_EXIST.format(dictionary), consts.ERROR)
         else:  # form not valid
             functions.flashErrors(forms['startTest'])
 
-    if 'correctMistakes' in request.form:
+    if do == 'mistakes':
         smartDict.testInit(consts.MISTAKE_DICT)
         return redirect(url_for('test'))
 
     return render_template('start-test.html',
                            forms=forms,
-                           mistakes=mistakes)
+                           mistakes=mistakes,
+                           active=consts.active.TEST)
 
 
 @app.route('/test/add-question', methods=['POST', 'GET'])
 @login_required
 def addQuestion():
     form = AddQuestionForm()
+    next_page = request.args.get('next')
+
+    if not next_page or url_parse(next_page).netloc != '':
+        next_page = url_for('dictionaries')
 
     if form.validate_on_submit():
         question = form.question.data
         answer = form.answer.data
         try:
             smartDict.addQuestion(question, answer)
-            flash('Word {0} - {1} was added to Test.'.format(question, answer))
+            flash('Word {0} - {1} was added to Test.'.format(question, answer),
+                  consts.SUCCESS)
         except QuestionAlreadyAddedError:
             flash('Word {0} - {1} have already added to Test.'
-                  .format(question, answer))
+                  .format(question, answer), consts.ERROR)
 
     else:  # form not valid
         functions.flashErrors(form)
 
-    return redirect(request.referrer)
+    # return redirect(request.referrer)
+    return redirect(next_page)
 
 
 @app.route('/test/', methods=['POST', 'GET'])
@@ -332,16 +416,18 @@ def test():
                 return render_template(
                     'finish-test.html',
                     result=result,
-                    form=forms['correctMistakes'])
+                    form=forms['correctMistakes'],
+                    active=consts.active.TEST)
     else:
         flash(
             'Please, <a href="{0}">choice the dictionary</a> \
-            to pass the test.'.format(url_for('startTest')))
+            to pass the test.'.format(url_for('startTest')), consts.ERROR)
 
     return render_template(
         'test.html',
         form=forms['testNext'],
-        question=question)
+        question=question,
+        active=consts.active.TEST)
 
 
 @app.route('/import/', methods=['POST', 'GET'])
@@ -354,24 +440,27 @@ def importWords():
     if form.validate_on_submit():
         dictionary = form.dictionary.data
         words = form.words.data
-        updateTime = time.time()
+        updateTime = time()
 
         try:
             addedWords = smartDict.importWords(dictionary, words, updateTime)
             if addedWords:
-                flash('Next words were added:')
+                flash('Next words were added:', consts.SUCCESS)
                 for word in addedWords:
-                    flash(word)
+                    flash('{0} - {1}'.format(word[0], word[1]), consts.SUCCESS)
             else:
-                flash('Words were not added.')
+                flash('Words were not added.', consts.ERROR)
             return redirect(url_for('importWords'))
         except DictionaryNotExistError:
-            flash(consts.DICT_NOT_EXIST.format(dictionary))
+            flash(consts.DICT_NOT_EXIST.format(dictionary), consts.ERROR)
 
     else:  # form not valid
         functions.flashErrors(form)
 
-    return render_template('import.html', form=form, addedWords=addedWords)
+    return render_template('import.html',
+                           form=form,
+                           addedWords=addedWords,
+                           active=consts.active.IMPORT)
 
 
 @app.route('/register/', methods=['POST', 'GET'])
@@ -391,12 +480,13 @@ def register():
             return redirect(url_for('index'))
 
         except UserAlreadyExistError:
-            flash('User already exists.')
+            flash('User already exists.', consts.ERROR)
 
     else:  # form not valid
         functions.flashErrors(form)
 
-    return render_template('register.html', form=form)
+    return render_template('register.html', form=form,
+                           active=consts.active.REGISTER)
 
 
 @app.route('/login/', methods=['POST', 'GET'])
@@ -422,12 +512,13 @@ def login():
             return redirect(next_page)
 
         except InvalidUsernameOrPasswordError:
-            flash('Invalid name/password.')
+            flash('Invalid name or password.', consts.ERROR)
 
     else:  # form not valid
         functions.flashErrors(form)
 
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form,
+                           active=consts.active.LOGIN)
 
 
 @app.route('/logout/')

@@ -1,0 +1,11 @@
+{% extends "base-page.html" %}
+
+{% block title %}
+    Server error
+{% endblock %}
+
+{% block app_content %}
+<h1>Ooops...</h1>
+<p>Something wrong.</p>
+<p>Go <a href="{{ url_for('index') }}">back</a></p>
+{% endblock %}

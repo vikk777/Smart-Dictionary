@@ -1,30 +1,35 @@
 {% extends "base-page.html" %}
+{% import 'macros.j2' as macros %}
+
 
 {% block title %}
     Finish test
 {% endblock %}
 
-{% block content %}
-Test finished with {{ result['correct'] }} of {{ result['total'] }}
-
-{% if result['mistakes'] %}
-   <p>Your mistakes:</p>
-    {% for mistake in result['mistakes'] %}
-        <p>
-            <span>
-                {{ mistake['question'] }}: 
-                your answer: {{ mistake['wrong'] }},
-                right answer: {{ mistake['right'] }}
-            </span>
-        </p>
-    {% endfor %}
-{% endif %}
-
-<form action="{{ url_for('startTest') }}" method="post">
-    {% if form %}
-        {% for field in form %}
-            {{ field }}
-        {% endfor %}
+{% block app_content %}
+    <h2>
+        Test finished with {{ result['correct'] }}
+        <small>
+            of {{ result['total'] }}
+        </small>
+    </h2>
+    {{ super() }}
+    {% if result['mistakes'] %}
+       <h3>My mistakes:</h3>
+       <blockquote>
+            {% for mistake in result['mistakes'] %}
+                <p>
+                    {{ mistake['question']|capitalize }} — 
+                    incorrect: <span class="text-danger">{{ mistake['wrong']|capitalize }}</span>,
+                    correct: <span class="text-success">{{ mistake['right']|capitalize }}</span>
+                </p>
+            {% endfor %}
+       </blockquote>
     {% endif %}
-</form>
+
+    <form class="form-inline" action="{{ url_for('startTest') }}?do=mistakes" method="post">
+        {% if form %}
+            {{ macros.renderForm(form) }}
+        {% endif %}
+    </form>
 {% endblock %}

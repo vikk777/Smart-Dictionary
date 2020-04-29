@@ -11,4 +11,4 @@ class DictionaryModel(db.Model):
     name = db.Column(db.String(24), nullable=False)
     description = db.Column(db.String(32))
     words = db.relationship('WordModel', backref='dictionary',
-                            lazy='dynamic')
+                            lazy='dynamic', cascade='all, delete-orphan')

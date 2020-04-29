@@ -1,11 +1,41 @@
-{% macro flashed_messages() %}
-    {% with messages = get_flashed_messages() %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% macro flashedMessages() %}
+    {% with messages = get_flashed_messages(with_categories=True) %}
         {% if messages %}
-            <ul>
+            <ul class='list-unstyled list-group'>
                 {% for message in messages %}
-                    <li>{{ message }}</li>
+                    <li class='list-group-item list-group-item-{{ message[0] }}'>{{ message[1] }}</li>
                 {% endfor %}
             </ul>
         {% endif %}
     {% endwith %}
+{% endmacro %}
+
+{% macro renderField(field, value=None) %}
+    {% if field.type == 'CSRFTokenField' %}
+            {{ field() }}
+        {% else %}
+            <div class="form-group">
+                {% if field.type == 'BooleanField' %}
+                    {{ wtf.form_field(field) }}
+                {% elif field.type == 'SubmitField' %}
+                        <button class="btn btn-block btn-primary" type="submit">
+                            {{ field.label.text }}
+                        </button>
+                {% else %}
+                    {% if value == None %}
+                        {{ field(class='form-control') }}
+                    {% else %}
+                        {{ field(class='form-control', value=value) }}
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endif %}
+{% endmacro %}
+
+{% macro renderForm(form) %}
+    {% for field in form %}
+        {{ renderField(field) }}
+    {% endfor %}
 {% endmacro %}

@@ -1,20 +1,39 @@
 {% extends "base-page.html" %}
+{% import 'macros.j2' as macros %}
 
 {% block title %}
     Add word
 {% endblock %}
 
-{% block content %}
+{% block app_content %}
+    <h2>
+        Add word
+        <small>
+            total words: {{ total }}
+        </small>
+    </h2>
+    {{ super() }}
     <form action="" method="post">
         {% if form.dictionary.choices %}
             {{ form.csrf_token }}
-            {{ form.original(autofocus=True) }}
-            {{ form.translate() }}
-            {{ form.transcription() }}
-            {{ form.replace.label }}
-            {{ form.replace() }}
-            {{ form.dictionary() }}
-            {{ form.addWord() }}
+            <div class="row">
+                <div class="form-group col-sm-4">
+                    {{ form.dictionary(class='form-control') }}
+                </div>
+                <div class="form-group col-sm-4">
+                    {{ form.original(class='form-control',
+                       autofocus=True) }}
+                </div>
+                <div class="col-sm-4">
+                    {{ form.translate(class='form-control') }}
+                </div>
+                <div class="checkbox col-sm-12">
+                    {{ macros.renderField(form.replace) }}
+                </div>
+                <div class="text-center col-sm-4 col-sm-offset-4">
+                    {{ macros.renderField(form.addWord) }}
+                </div>
+            </div>
         {% else %}
             <span>Please, for adding words create a </span>
             <a href="{{ url_for('addDictionary') }}">
@@ -23,5 +42,4 @@
         {% endif %}
     </form>
 
-    {{ macros.flashed_messages() }}
 {% endblock %}

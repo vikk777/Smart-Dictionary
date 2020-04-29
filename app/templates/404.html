@@ -1,0 +1,11 @@
+{% extends "base-page.html" %}
+
+{% block title %}
+    Page not found
+{% endblock %}
+
+{% block app_content %}
+<h1>Ooops...</h1>
+<p>Page not found.</p>
+<p>Go <a href="{{ url_for('index') }}">back</a></p>
+{% endblock %}

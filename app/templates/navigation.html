@@ -1,0 +1,50 @@
+{% block navbar %}
+    <nav class="navbar navbar-inverse">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <img class="navbar-brand logo" src="{{ url_for('.static', filename='images/logo-2.png') }}" alt="">
+                <a class="navbar-brand" href="{{ url_for('index') }}">
+                    {# <span class="glyphicon glyphicon-book"></span> #}
+                    Smart Dictionary
+                </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+                {% if current_user.is_authenticated %}
+                    <ul class="nav navbar-nav">
+                        <li {% if active == 'word' %} class='active' {% endif %}>
+                            <a href="{{ url_for('addWord') }}">Add word</a>
+                        </li>
+                        <li {% if active == 'dict' %} class='active' {% endif %}>
+                            <a href="{{ url_for('dictionaries') }}">Dictionaries</a>
+                        </li>
+                        <li {% if active == 'test' %} class='active' {% endif %}>
+                            <a href="{{ url_for('startTest') }}">Test</a>
+                        </li>
+                        <li {% if active == 'import' %} class='active' {% endif %}>
+                            <a href="{{ url_for('importWords') }}">Import</a>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                        {# <li><span>{{ current_user.name }}</span></li> #}
+                    </ul>
+                {% else %}
+                    <ul class="nav navbar-nav navbar-right">
+                        <li {% if active == 'login' %} class='active' {% endif %}>
+                            <a href="{{ url_for('login') }}">Sign In</a>
+                        </li>
+                        <li {% if active == 'register' %} class='active' {% endif %}>
+                            <a href="{{ url_for('register') }}">Sign Up</a>
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+{% endblock %}

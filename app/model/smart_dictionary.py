@@ -39,14 +39,18 @@ class SmartDictionary():
         dicts = list()
 
         for dict_ in temp:
-            dicts.append((dict_.name, dict_.description))
+            dicts.append((dict_.name,
+                          dict_.description,
+                          self.quantity(dict_.name)))
 
         return dicts
 
     def dictionary(self, name):
         dict_ = self._dict.get(current_user, name)
         if dict_:
-            return (dict_.name, dict_.description)
+            return (dict_.name,
+                    dict_.description,
+                    self.quantity(dict_.name))
         else:
             raise DictionaryNotExistError
 
@@ -115,6 +119,12 @@ class SmartDictionary():
         """Quantity of words in dictionary"""
         return len(self.words(name))
 
+    def totalWords(self):
+        total = 0
+        for dict_ in self.dictionaries():
+            total += self.quantity(dict_[0])
+        return total
+
     def importWords(self, name, words, time):
         if self._dict.isExist(current_user, name):
             words = words.split('\r\n')
@@ -126,7 +136,7 @@ class SmartDictionary():
                     self.addWord(name, word[1], word[2], '', time)
 
                     if word[1] not in addedWords:
-                        addedWords.append(word[1])
+                        addedWords.append((word[1], word[2]))
             return addedWords
         else:
             raise DictionaryNotExistError

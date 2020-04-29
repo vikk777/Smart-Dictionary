@@ -1,16 +1,20 @@
 {% extends "base-page.html" %}
+{% import 'macros.j2' as macros %}
 
 {% block title %}
-    Register
+    Sign Up
 {% endblock %}
 
-{% block content %}
-    {{ macros.flashed_messages() }}
-
-    <form action="" method="post">
-        {% for field in form %}
-            {{ field }}
-        {% endfor %}
-    </form>
-
+{% block app_content %}
+<div class="row">
+    <div class="col-sm-6 col-sm-offset-3">
+        <h2>
+            Sign Up
+        </h2>
+        {{ super() }}
+        <form action="" method="post">
+            {{ macros.renderForm(form) }}
+        </form>
+    </div>
+</div>
 {% endblock %}

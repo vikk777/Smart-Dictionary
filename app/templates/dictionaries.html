@@ -4,105 +4,48 @@
     Dictionaries
 {% endblock %}
 
-{% block content %}
-    {# context:
-        dicts: list of dicts names
-        words: list of words of current dict
-        viewDict: touple of current dict
-        forms: dict of available forms
-     #}
+{% block app_content %}
+    <h2 class="small-glyphicons">
+        My
+        <small>
+            Dictionaries
+            <a class="glyphicon glyphicon-plus-sign" href="{{ url_for('addDictionary') }}" title="Add dictionary"></a>
+        </small>
+    </h2>
+    {{ super() }}
 
-    {# dictionary list
-        dict[0] - name
-        dict[1] - description
-    #}
-
-    {{ macros.flashed_messages() }}
-
-    {% for dict in dicts %}
-        <div>
-            <a href="{{ url_for('dictionaries', view=dict[0]) }}">{{ dict[0] }}</a>
-            <span>{{ dict[1] }}</span>
-        </div>
-    {% endfor %}
+    <div class="row">
+        {% for dict in dicts %}
+            <div class="col-sm-3">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        {# <p class="panel-title"> #}
+                            <a class="panel-title" href="{{ url_for('viewDictionary', name=dict[0]) }}">{{ dict[0] }}</a>
+                        {# </p> #}
+                    </div>
+                    <div class="panel-body">
+                        <p>{{ dict[1] }}</p>
+                        <p>Words: {{ dict[2] }}</p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-sm-12">
+                <p>
+                    You have no dictionary.
+                    <a href="{{ url_for('addDictionary') }}">
+                        Create it
+                    </a>
+                </p>
+            </div>
+        {% endfor %}
 
     {# link for new dict #}
-    <a href="{{ url_for('addDictionary') }}">Add dictionary</a>
-
-    {# form for change dict #}
-    {% if viewDict %}
-        <div>
-            <form action="{{ url_for('changeDictionary') }}" method="post">
-                {{ forms['changeDict'].csrf_token }}
-                {{ forms['changeDict'].name(value=viewDict[0]) }}
-                {{ forms['changeDict'].description(value=viewDict[1]) }}
-                {{ forms['changeDict'].changeDict() }}
-                {{ forms['changeDict'].old(value=viewDict[0]) }}
-            </form>
-        </div>
-    {% endif %}
-
-    {# words list
-        word[original]
-        word[translate]
-        word[transcription]
-        word[updateTime]
-    #}
-    {% if words %}
-        {% for word in words %}
-            {% if word['original'] in updateTime %}
-                {{ updateTime.get(word['original']) }}
-            {% endif %}
-            <form action="{{ url_for('changeWord') }}" method="post">
-                {{ forms['changeWord'].csrf_token }}
-                {{ forms['changeWord'].original(value=word['original']) }}
-                <span>[
-                {{ forms['changeWord'].transcription(value=word['transcription']) }}
-                ]</span>
-                <span>-</span>
-                {{ forms['changeWord'].translate(value=word['translate']) }}
-                {{ forms['changeWord'].old(value=word['original']) }}
-                {{ forms['changeWord'].dictionary(value=viewDict[0]) }}
-                {{ forms['changeWord'].changeWord() }}
-            </form>
-
-            <form action="{{ url_for('deleteWord') }}" method="post">
-                {{ forms['deleteWord'].csrf_token }}
-                {{ forms['deleteWord'].deleteWord() }}
-                {{ forms['deleteWord'].original(value=word['original']) }}
-                {{ forms['deleteWord'].dictionary(value=viewDict[0]) }}
-            </form>
-
-            <form action="{{ url_for('addQuestion') }}" method="post">
-                {{ forms['addQuestion'].csrf_token }}
-                {{ forms['addQuestion'].addQuestion() }}
-                {{ forms['addQuestion'].question(value=word['original']) }}
-                {{ forms['addQuestion'].answer(value=word['translate']) }}
-            </form>
-        {% endfor %}
-    {% endif %}
-
-    {# add word #}
-    {% if viewDict %}
-        <form action="{{ url_for('addWordWrapper') }}" method="post">
-            {{ forms['addWord'].csrf_token }}
-            {{ forms['addWord'].original() }}
-            {{ forms['addWord'].translate() }}
-            {{ forms['addWord'].transcription() }}
-            {{ forms['addWord'].replace.label }}
-            {{ forms['addWord'].replace() }}
-            {{ forms['addWord'].dictionary(value=viewDict[0]) }}
-            {{ forms['addWord'].addWord() }}
-        </form>
-    {% endif %}
-
-    {# delete dict #}
-    {% if viewDict %}
-        <form action="{{ url_for('deleteDictionary') }}" method="post">
-            {{ forms['deleteDict'].csrf_token }}
-            {{ forms['deleteDict'].name(value=viewDict[0]) }}
-            {{ forms['deleteDict'].deleteDict() }}
-        </form>
-    {% endif %}
+        {# <div class="col-sm-3 ">
+            <div class="text-center">
+                <a class="text-v-center glyphicon glyphicon-plus-sign" href="{{ url_for('addDictionary') }}" title="Add dictionary"></a>
+            </div>
+        </div> #}
+    </div>
 
 {% endblock %}

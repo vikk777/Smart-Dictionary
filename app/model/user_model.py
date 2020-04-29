@@ -18,7 +18,7 @@ class UserModel(db.Model, UserMixin):
     password = db.Column(db.String(128), nullable=False)
     dictionaries = db.relationship('DictionaryModel',
                                    backref='user',
-                                   # cascade='all, delete-orphan',
+                                   cascade='all, delete-orphan',
                                    lazy='dynamic')
     mistakes = db.relationship('WordModel',
                                secondary=mistakesTable,

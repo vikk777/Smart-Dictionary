@@ -1,0 +1,53 @@
+{% extends "base-page.html" %}
+
+{% block title %}
+    {{ viewDict[0] }}
+{% endblock %}
+
+{% block app_content %}
+
+    <h2 class="small-glyphicons">
+        {{ viewDict[0]|capitalize if viewDict }}
+        <small>
+            {{ viewDict[1]|capitalize if viewDict }}
+            <a href="{{ url_for('editDictionary', name=viewDict[0]) }}" class="glyphicon glyphicon-pencil" title="Edit"></a>
+        </small>
+    </h2>
+    {{ super() }}
+
+    {# words list
+        word[original]
+        word[translate]
+        word[transcription]
+        word[updateTime]
+    #}
+    {% if viewDict %}
+        <h4>Words: <small>{{ viewDict[2] }}</small></h4>
+        {% for word in words %}
+            {% if word['original'] in updateTime %}
+                {% if not loop.first %}
+                    </blockquote>
+                {% endif %}
+                <span class="{# lead #}">{{ updateTime.get(word['original']) }}</span>
+                <blockquote>
+            {% endif %}
+
+            <form id="addQuestion-{{ loop.index }}" class="form-inline form-hidden" action="{{ url_for('addQuestion', next=url_for('viewDictionary', name=viewDict[0], _anchor=word['original'])) }}" method="post">
+                {{ form.csrf_token }}
+                {{ form.question(value=word['original']) }}
+                {{ form.answer(value=word['translate']) }}
+            </form>
+
+            <div class="small-glyphicons">
+                {{ word['original']|capitalize }} — {{ word['translate']|capitalize }}
+                <a name="{{ word['original'] }}"></a>
+                <a href="{{ url_for('editDictionary', name=viewDict[0], _anchor=word['original']) }}" class="glyphicon glyphicon-pencil" title="Edit"></a>
+                <button form="addQuestion-{{ loop.index }}" type="submit" class="btn btn-link glyphicon glyphicon-education" title="Add to test"></button>
+            </div>
+
+        {% endfor %}
+        </blockquote>
+    {% endif %}
+
+
+{% endblock %}

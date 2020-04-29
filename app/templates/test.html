@@ -1,27 +1,55 @@
 {% extends "base-page.html" %}
+{% import 'macros.j2' as macros %}
+
 
 {% block title %}
     Test
 {% endblock %}
 
-{% block content %}
-    {% if question.get('question') %}
-        <form action="{# url_for('finishTest') #}" method="post">
-            {{ form.csrf_token }}
-            <p>
-                {{ question.get('question') }}
-                {{ form.question(value=question.get('question')) }} -
-                {{ form.answer(value='') }}
-            </p>
-            {{ form.nextQuestion() }}
-        </form>
-
-        {% if question.get('progress') %}
-            {{ question.get('progress').get('current') }}
-            of
-            {{ question.get('progress').get('total') }}
-        {% endif %}
+{% block app_content %}
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+            {% if question.get('progress') %}
+                <h2>
+                    {{ question.get('progress').get('current') }}
+                    <small>
+                        of {{ question.get('progress').get('total') }}
+                    </small>
+                </h2>
+            {# </div> #}
+        {# </div> #}
+    {% else %}
+        <h2>Test</h2>
     {% endif %}
 
-    {{ macros.flashed_messages() }}
+    {{ super() }}
+
+    {% if question.get('question') %}
+        {# <div class="row"> #}
+            {# <div class="col-sm-6 col-sm-offset-3"> #}
+                <form action="" method="post">
+                    {{ form.csrf_token }}
+                        <h3>
+                            {{ question.get('question')|capitalize }}
+                        </h3>
+                        <p>
+                            {{ macros.renderField(form.question, value=question.get('question')) }}
+                        </p>
+                        <p>
+                            {{ macros.renderField(form.answer, value='') }}
+                        </p>
+                        <p>
+                            {{ macros.renderField(form.nextQuestion) }}
+                        </p>
+                        {% if question.get('progress') %}
+                            {% with percent = question.get('progress').get('current') / question.get('progress').get('total') * 100 %}
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ percent }}%;"></div>
+                                </div>
+                            {% endwith %}
+                        {% endif %}
+                </form>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
