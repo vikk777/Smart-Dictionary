@@ -55,11 +55,11 @@
                         {{ forms['changeWord'].old(value=word['original']) }}
                         {{ forms['changeWord'].dictionary(value=viewDict[0]) }}
                         <button type="submit" class="btn btn-link glyphicon glyphicon-ok" title="Change word"></button>
-                        <button form='deleteWordForm' type="submit" class="btn btn-link glyphicon glyphicon-trash" title="Delete word"></button>
+                        <button form='deleteWordForm-{{ loop.index }}' type="submit" class="btn btn-link glyphicon glyphicon-trash" title="Delete word"></button>
                         {# {{ forms['changeWord'].changeWord() }} #}
                     </form>
 
-                    <form id="deleteWordForm" action="{{ url_for('deleteWord', next=url_for('editDictionary', name=viewDict[0])) }}" method="post">
+                    <form id="deleteWordForm-{{ loop.index }}" action="{{ url_for('deleteWord', next=url_for('editDictionary', name=viewDict[0])) }}" method="post">
                         {{ forms['deleteWord'].csrf_token }}
                         {# {{ forms['deleteWord'].deleteWord() }} #}
                         {{ forms['deleteWord'].original(value=word['original']) }}
