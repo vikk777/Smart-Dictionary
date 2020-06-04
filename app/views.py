@@ -1,5 +1,5 @@
 from . import app, loginManager
-from flask import request, redirect, render_template, url_for, flash
+from flask import request, redirect, render_template, url_for, flash, send_from_directory
 from .model.smart_dictionary import SmartDictionary
 from .forms.word import \
     AddWordForm,\
@@ -26,10 +26,18 @@ from time import time
 import app.consts as consts
 from flask_login import login_required, current_user
 from werkzeug.urls import url_parse
+import os
 
 smartDict = SmartDictionary()
 loginManager.login_view = 'login'
 loginManager.login_message_category = consts.ERROR
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'images/favicon.ico',
+                               mimetype='image/x-icon')
 
 
 @app.route('/')
