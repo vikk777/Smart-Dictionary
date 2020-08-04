@@ -106,7 +106,10 @@ class TestManager():
     def total(self, userId):
         return TestModel.query.filter_by(user_id=userId).count()
 
+    def totalTemp(self, userId):
+        return len(self._tempQuestions.get(userId))
+
     def progress(self, userId):
         """Current step and total steps"""
-        return {'current': self.total(userId) - len(self._tempQuestions.get(userId)),
+        return {'current': self.total(userId) - self.totalTemp(userId),
                 'total': self.total(userId)}

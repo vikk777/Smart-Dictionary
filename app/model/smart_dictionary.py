@@ -10,6 +10,7 @@ import app.functions as functions
 import app.consts as consts
 from datetime import date
 from flask_login import logout_user, current_user
+from random import randint
 
 # !!! trim username
 
@@ -207,7 +208,8 @@ class SmartDictionary():
         questions = self._testManager.tempQuestions(current_user.id)
 
         if questions:
-            question = questions.pop(0)
+            position = randint(0, self._testManager.totalTemp(current_user.id) - 1)
+            question = questions.pop(position)
             # questions is refer to _tempQuestions
             # self._testManager.setTempQuestions(current_user.id, questions)
             return {'question': question,
