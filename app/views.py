@@ -407,7 +407,7 @@ def test():
 
     if smartDict.isTestInit():
         if forms['testNext'].validate_on_submit():
-            answer = forms['testNext'].answer.data or ''
+            answer = forms['testNext'].answer.data or '[Empty]'
             smartDict.addAnswer((question['question'], answer))
         else:
             functions.flashErrors(forms['testNext'])

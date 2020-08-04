@@ -38,12 +38,12 @@ class active:
 
 
 class regexp:
-    RU = '^[А-Яа-яЁё\s,]+$'
+    RU = r'^[А-Яа-яЁё\s,-]+$'
     RU_MSG = 'Russian letters and spaces only.'
-    EN = '^[a-zA-Z\s]+$'
+    EN = r'^[a-zA-Z\s\'-]+$'
     EN_MSG = 'Latin letters and spaces only.'
-    RU_EN_BASE = '^[a-zA-Zа-яА-ЯёЁ\s]'
+    RU_EN_BASE = r'^[a-zA-Zа-яА-ЯёЁ\s]'
     RU_EN_FULL = RU_EN_BASE + '+$'
     RU_EN_EMPTY = RU_EN_BASE + '*$'
     RU_EN_MSG = 'Latin and russian letters and spaces only.'
-    IMPORT = '([a-zA-Z ]+)\s*-\s*((,? *[а-яА-ЯёЁ]+)+)'
+    IMPORT = r'([a-zA-Z ]+)\s*[-—]\s*((,? *[а-яА-ЯёЁ]+)+)'

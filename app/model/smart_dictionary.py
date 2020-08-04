@@ -191,7 +191,7 @@ class SmartDictionary():
         return True
 
     def isTestInit(self):
-        return True if self._testManager.isInit(current_user.id) else False
+        return self._testManager.isInit(current_user.id)
 
     def addQuestion(self, question, answer):
         if not self.isTestInit():
