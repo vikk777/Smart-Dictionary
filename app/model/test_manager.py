@@ -1,42 +1,60 @@
+from app import db
+from .test_manager_model import TestModel
 from .user import User
 
 
 class TestManager():
     def __init__(self):
-        self._questions = dict()
-        self._answers = dict()
         self._tempQuestions = dict()
         self._user = User()
 
     def init(self, userId):
-        if self._questions.get(userId) is None:
-            self._questions[userId] = dict()
-            self._answers[userId] = dict()
+        if self._tempQuestions.get(userId) is None:
             self._tempQuestions[userId] = list()
             return True
         else:
             return False
 
     def isInit(self, userId):
-        return True if self._questions.get(userId) else False
-        # and self._tempQuestions.get(userId) else False
+        return True if TestModel.query.filter_by(user_id=userId).count()\
+            else False
 
     def setQuestions(self, userId, questions):
-        self._questions[userId] = questions
+        for question, answer in questions.items():
+            if not self.haveQuestion(userId, question):
+                self.addQuestion(userId, question, answer)
         return True
 
     def addQuestion(self, userId, question, answer):
-        self._questions[userId].update({question: answer})
+        row = TestModel(user_id=userId,
+                        question=question,
+                        answer=answer)
+        db.session.add(row)
+        db.session.commit()
         return True
 
     def haveQuestion(self, userId, question):
-        return True if self._questions[userId].get(question) else False
+        return True if TestModel.query.filter_by(
+            user_id=userId,
+            question=question).count() else False
+
+    def rawQuestions(self, userId):
+        return TestModel.query.filter_by(user_id=userId).all()
 
     def questions(self, userId):
-        return self._questions[userId]
+        dict_ = dict()
+        for question in self.rawQuestions(userId):
+            dict_.update({question.question: question.answer})
+        return dict_
 
-    def setAnswer(self, userId, answer):
-        self._answers[userId].update({answer[0]: answer[1]})
+    def setAnswer(self, userId, question, answer):
+        # answer - touple
+        question = question
+        userAnswer = answer
+        row = TestModel.query.filter_by(user_id=userId,
+                                        question=question).first()
+        row.user_answer = userAnswer
+        db.session.commit()
         return True
 
     def setTempQuestions(self, userId, questions):
@@ -55,20 +73,20 @@ class TestManager():
 
     def check(self, userId):
         correct = 0
-        total = len(self._questions.get(userId))
+        total = self.total(userId)
         tempMistakes = list()
 
-        for question in self._questions.get(userId):
-            if self._answers.get(userId).get(question) in\
-                    self._questions.get(userId).get(question).split(', '):
+        for row in self.rawQuestions(userId):
+            if row.user_answer in\
+                    row.answer.split(', '):
                 correct += 1
-                if self._user.haveMistake(userId, question):
-                    self._user.removeMistake(userId, question)
+                if self._user.haveMistake(userId, row.question):
+                    self._user.removeMistake(userId, row.question)
             else:
                 tempMistakes.append({
-                    'question': question,
-                    'right': self._questions.get(userId).get(question),
-                    'wrong': self._answers.get(userId).get(question)})
+                    'question': row.question,
+                    'right': row.answer,
+                    'wrong': row.user_answer or '[empty]'})
 
         # add mistakes to db
         # do not in loop above because
@@ -78,22 +96,17 @@ class TestManager():
             if not self._user.haveMistake(userId, mistake['question']):
                 self._user.addMistake(userId, mistake['question'])
 
-        # self._questions.get(userId).clear()
-        # self._answers.get(userId).clear()
-        # self._tempQuestions.get(userId).clear()  # will be empty
-
-        del self._questions[userId]
-        del self._answers[userId]
-        del self._tempQuestions[userId]
+        TestModel.query.filter_by(user_id=userId).delete()
+        db.session.commit()
 
         return {'correct': correct,
                 'total': total,
                 'mistakes': tempMistakes}
 
+    def total(self, userId):
+        return TestModel.query.filter_by(user_id=userId).count()
+
     def progress(self, userId):
         """Current step and total steps"""
-        return {'current':
-                len(self._questions.get(userId)) -
-                len(self._tempQuestions.get(userId)),
-                'total':
-                len(self._questions.get(userId))}
+        return {'current': self.total(userId) - len(self._tempQuestions.get(userId)),
+                'total': self.total(userId)}

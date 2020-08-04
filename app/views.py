@@ -326,12 +326,14 @@ def deleteWord():
 def startTest():
     do = request.args.get('do')
     forms = dict()
+    addedWords = dict()
     forms['startTest'] = TestStartForm()
     forms['startTest'].dictionary.choices = list()
 
     if smartDict.isTestInit():
         forms['startTest'].dictionary.choices.append(
             (consts.ADDED_WORDS, consts.ADDED_WORDS_S))
+        addedWords = smartDict.addedWords()
 
     forms['startTest'].dictionary.choices += functions.choicesForSelect(
         smartDict, addAll=True)
@@ -365,6 +367,7 @@ def startTest():
 
     return render_template('start-test.html',
                            forms=forms,
+                           addedWords=addedWords,
                            mistakes=mistakes,
                            active=consts.active.TEST)
 
@@ -407,8 +410,8 @@ def test():
 
     if smartDict.isTestInit():
         if forms['testNext'].validate_on_submit():
-            answer = forms['testNext'].answer.data or '[Empty]'
-            smartDict.addAnswer((question['question'], answer))
+            answer = forms['testNext'].answer.data
+            smartDict.addAnswer(question['question'], answer)
         else:
             functions.flashErrors(forms['testNext'])
 

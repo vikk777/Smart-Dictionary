@@ -216,17 +216,20 @@ class SmartDictionary():
         else:
             return {}
 
-    def addAnswer(self, answer):
+    def addAnswer(self, question, answer):
         # answer - tuple()
         self._testManager.setAnswer(current_user.id,
-                                    (functions.trim(answer[0]),
-                                     functions.trim(answer[1])))
+                                    functions.trim(question),
+                                    functions.trim(answer))
 
     def testResult(self):
         return self._testManager.check(current_user.id)
 
     def mistakes(self):
         return self._testManager.mistakes(current_user.id)
+
+    def addedWords(self):
+        return self._testManager.questions(current_user.id)
 
 # Users --------------------------------------------------
 

@@ -16,10 +16,17 @@ class UserModel(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(24), nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    dictionaries = db.relationship('DictionaryModel',
-                                   backref='user',
-                                   cascade='all, delete-orphan',
-                                   lazy='dynamic')
-    mistakes = db.relationship('WordModel',
-                               secondary=mistakesTable,
-                               lazy='dynamic')
+    dictionaries = db.relationship(
+        'DictionaryModel',
+        backref='user',
+        cascade='all, delete-orphan',
+        lazy='dynamic')
+    mistakes = db.relationship(
+        'WordModel',
+        secondary=mistakesTable,
+        lazy='dynamic')
+    # test = db.relationship(
+    #     'TestModel',
+    #     backref='user',
+    #     cascade='all, delete-orphan',
+    #     lazy='dynamic')

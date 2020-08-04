@@ -25,6 +25,15 @@
         </p>
     {% endif %}
 
+    {% if addedWords %}
+        <h4>Added words:</h4>
+        <blockquote>
+            {% for question, answer in addedWords.items() %}
+                <p>{{ question|capitalize }} — {{ answer|capitalize}}</p>
+            {% endfor %}
+        </blockquote>
+    {% endif %}
+
     {% if mistakes %}
         <h4>My mistakes:</h4>
         <blockquote>
