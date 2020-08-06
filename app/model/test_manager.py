@@ -5,15 +5,15 @@ from .user import User
 
 class TestManager():
     def __init__(self):
-        self._tempQuestions = dict()
+        # self._tempQuestions = dict()
         self._user = User()
 
-    def init(self, userId):
-        if self._tempQuestions.get(userId) is None:
-            self._tempQuestions[userId] = list()
-            return True
-        else:
-            return False
+    # def init(self, userId):
+    #     if self._tempQuestions.get(userId) is None:
+    #         self._tempQuestions[userId] = list()
+    #         return True
+    #     else:
+    #         return False
 
     def isInit(self, userId):
         return True if TestModel.query.filter_by(user_id=userId).count()\
@@ -54,15 +54,21 @@ class TestManager():
         row = TestModel.query.filter_by(user_id=userId,
                                         question=question).first()
         row.user_answer = userAnswer
+        row.passed = True
         db.session.commit()
         return True
 
-    def setTempQuestions(self, userId, questions):
-        self._tempQuestions[userId] = questions
-        return True
+    def nextQuestion(self, userId):
+        questions = TestModel.query.filter_by(user_id=userId,
+                                              passed=False).all()
+        return questions.pop(0).question if questions else None
 
-    def tempQuestions(self, userId):
-        return self._tempQuestions.get(userId)
+    # def setTempQuestions(self, userId, questions):
+    #     self._tempQuestions[userId] = questions
+    #     return True
+
+    # def tempQuestions(self, userId):
+    #     return self._tempQuestions.get(userId)
 
     def mistakes(self, userId):
         words = dict()
@@ -106,10 +112,10 @@ class TestManager():
     def total(self, userId):
         return TestModel.query.filter_by(user_id=userId).count()
 
-    def totalTemp(self, userId):
-        return len(self._tempQuestions.get(userId))
+    def notPassed(self, userId):
+        return TestModel.query.filter_by(user_id=userId, passed=False).count()
 
     def progress(self, userId):
         """Current step and total steps"""
-        return {'current': self.total(userId) - self.totalTemp(userId),
+        return {'current': self.total(userId) - self.notPassed(userId),
                 'total': self.total(userId)}

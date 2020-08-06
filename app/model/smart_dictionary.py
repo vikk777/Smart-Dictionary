@@ -145,18 +145,19 @@ class SmartDictionary():
 # Test --------------------------------------------------
 
     def testInit(self, name, period=consts.period.ALL_I):
-        self._testManager.init(current_user.id)
+        # self._testManager.init(current_user.id)
         initDict = dict()
 
         if name == consts.ADDED_WORDS:
-            initDict = self._testManager.questions(current_user.id)
+            initDict.update(self._testManager.questions(current_user.id))
 
         # dictionary of mistakes
         elif name == consts.MISTAKE_DICT:
-            for question, answer in\
-                    self._testManager.mistakes(current_user.id).items():
-                initDict.update({question: answer})
-                # initDict.update({answer: question})
+            # for question, answer in\
+            # self._testManager.mistakes(current_user.id).items():
+            # initDict.update({question: answer})
+            # initDict.update({answer: question})
+            initDict.update(self._testManager.mistakes(current_user.id))
 
         else:
             if name == consts.ALL_DICTS:
@@ -186,8 +187,8 @@ class SmartDictionary():
         initDict.update(reverse)
 
         self._testManager.setQuestions(current_user.id, initDict)
-        self._testManager.setTempQuestions(current_user.id,
-                                           list(initDict.keys()))
+        # self._testManager.setTempQuestions(current_user.id,
+        #                                    list(initDict.keys()))
 
         return True
 
@@ -195,8 +196,8 @@ class SmartDictionary():
         return self._testManager.isInit(current_user.id)
 
     def addQuestion(self, question, answer):
-        if not self.isTestInit():
-            self._testManager.init(current_user.id)
+        # if not self.isTestInit():
+        #     self._testManager.init(current_user.id)
 
         if not self._testManager.haveQuestion(current_user.id, question):
             self._testManager.addQuestion(current_user.id, question, answer)
@@ -205,13 +206,13 @@ class SmartDictionary():
             raise QuestionAlreadyAddedError
 
     def nextQuestion(self):
-        questions = self._testManager.tempQuestions(current_user.id)
+        question = self._testManager.nextQuestion(current_user.id)
 
-        if questions:
+        if question:
             # position = randint(0, self._testManager.totalTemp(
             #     current_user.id) - 1)
             # question = questions.pop(position)
-            question = questions.pop(0)
+            # question = questions.pop(0)
             # questions is refer to _tempQuestions
             # self._testManager.setTempQuestions(current_user.id, questions)
             return {'question': question,

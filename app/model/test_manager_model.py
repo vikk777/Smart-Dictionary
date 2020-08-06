@@ -11,3 +11,4 @@ class TestModel(db.Model):
     question = db.Column(db.String(32), nullable=False)
     answer = db.Column(db.String(32), nullable=False)
     user_answer = db.Column(db.String(32), nullable=True)
+    passed = db.Column(db.Boolean, default=False)
