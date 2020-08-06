@@ -208,8 +208,10 @@ class SmartDictionary():
         questions = self._testManager.tempQuestions(current_user.id)
 
         if questions:
-            position = randint(0, self._testManager.totalTemp(current_user.id) - 1)
-            question = questions.pop(position)
+            # position = randint(0, self._testManager.totalTemp(
+            #     current_user.id) - 1)
+            # question = questions.pop(position)
+            question = questions.pop(0)
             # questions is refer to _tempQuestions
             # self._testManager.setTempQuestions(current_user.id, questions)
             return {'question': question,
