@@ -10,7 +10,6 @@ import app.functions as functions
 import app.consts as consts
 from datetime import date
 from flask_login import logout_user, current_user
-from random import randint
 
 # !!! trim username
 

@@ -1,6 +1,7 @@
 from app import db
 from .test_manager_model import TestModel
 from .user import User
+from random import randint
 
 
 class TestManager():
@@ -61,7 +62,11 @@ class TestManager():
     def nextQuestion(self, userId):
         questions = TestModel.query.filter_by(user_id=userId,
                                               passed=False).all()
-        return questions.pop(0).question if questions else None
+        if questions:
+            position = randint(0, len(questions) - 1)
+            return questions.pop(position).question
+        else:
+            return None
 
     # def setTempQuestions(self, userId, questions):
     #     self._tempQuestions[userId] = questions
