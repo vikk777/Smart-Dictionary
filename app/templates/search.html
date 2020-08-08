@@ -1,0 +1,33 @@
+{% extends "base-page.html" %}
+{% import 'macros.j2' as macros %}
+
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block app_content %}
+    <h2>
+        Search
+        <small>
+            results
+        </small>
+    </h2>
+    {{ super() }}
+
+    {% if dicts %}
+        {% for dict, words in dicts.items() %}
+            <h4>{{ dict }}</h4>
+                <blockquote>
+                    {% for word in words %}
+                        <div>
+                            {{ word['original'] }} -
+                            {{ word['translate'] }}
+                        </div>
+                    {% endfor %}
+                </blockquote>
+        {% endfor %}
+    {% else %}
+        <h4>There are no any words...</h4>
+    {% endif %}
+{% endblock %}

@@ -106,3 +106,12 @@ class Dictionary():
             allWords.extend(self.words(user, dict_.name))
 
         return allWords
+
+    def search(self, user, find):
+        dicts = self.all(user)
+        found = list()
+
+        for dict_ in dicts:
+            found.extend(self._word.search(dict_, find))
+
+        return found

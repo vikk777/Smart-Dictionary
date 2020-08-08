@@ -14,6 +14,7 @@ from .forms.test import TestStartForm, TestNextForm,\
     CorrectMistakesForm, AddQuestionForm
 from .forms.import_words import ImportForm
 from .forms.login import LoginForm, RegisterForm
+from .forms.search import SearchForm
 from .sderrors import \
     DictionaryNotExistError,\
     DictionaryAlreadyExistError,\
@@ -538,3 +539,20 @@ def logout():
     smartDict.logoutUser()
     # flash('You have been logged out.')
     return redirect(url_for('login'))
+
+
+@app.route('/search/', methods=['GET', 'POST'])
+@login_required
+def search():
+    form = SearchForm()
+    dicts = dict()
+
+    if form.is_submitted():
+        word = form.word.data
+        dicts = smartDict.search(word)
+
+    else:  # form not valid
+        functions.flashErrors(form)
+
+    return render_template('search.html', form=form,
+                           dicts=dicts)

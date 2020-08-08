@@ -224,8 +224,8 @@ class SmartDictionary():
     def addAnswer(self, question, answer):
         # answer - tuple()
         self._testManager.setAnswer(current_user.id,
-                                    functions.trim(question),
-                                    functions.trim(answer))
+                                    functions.trim(question.lower()),
+                                    functions.trim(answer.lower()))
 
     def testResult(self):
         return self._testManager.check(current_user.id)
@@ -255,3 +255,17 @@ class SmartDictionary():
 
     def logoutUser(self):
         logout_user()
+
+    def search(self, find):
+        found = self._dict.search(current_user, find)
+        words = dict()
+
+        for word in found:
+            if not words.get(word.dictionary.name):
+                words[word.dictionary.name] = list()
+
+            words[word.dictionary.name].append({
+                'original': word.original,
+                'translate': word.translate
+            })
+        return words

@@ -1,3 +1,5 @@
+{% import 'macros.j2' as macros %}
+
 {% block navbar %}
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
@@ -34,6 +36,17 @@
                         <li><a href="{{ url_for('logout') }}">Logout</a></li>
                         {# <li><span>{{ current_user.name }}</span></li> #}
                     </ul>
+                    <form action="{{ url_for('search') }}" class="navbar-form navbar-right" method="post">
+                       <div class="input-group">
+                            {# {{ macros.renderField(form.word) }} #}
+                            {# {{ macros.renderField(form.search) }} #}
+                            <input type="text" name="word" class="form-control" accesskey="s" placeholder="Tab or Shift+Alt+S" tabindex="1">
+                            <span class="input-group-btn"><button class="btn btn-default" type="submit">
+                                <span class="glyphicon glyphicon-search"></span>&nbsp;
+                            </button></span>
+                        </div>
+                        {# {{ macros.renderField(form.csrf_token) }} #}
+                    </form>
                 {% else %}
                     <ul class="nav navbar-nav navbar-right">
                         <li {% if active == 'login' %} class='active' {% endif %}>

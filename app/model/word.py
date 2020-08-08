@@ -53,3 +53,10 @@ class Word():
 
     def isExist(self, dictionary, original):
         return True if self.get(dictionary, original) else False
+
+    def search(self, dictionary, find):
+        return WordModel.query.filter(
+            (WordModel.original.like(f"%{find}%") | WordModel.translate.
+                like(f"%{find}%")),
+            WordModel.dictionary == dictionary
+        ).all()
