@@ -21,7 +21,9 @@
                 <p>
                     {{ mistake['question']|capitalize }} — 
                     incorrect: <span class="text-danger">{{ mistake['wrong']|capitalize }}</span>,
+                    incorrect: <span class="text-danger">{{ mistake['wrong'] }}</span>,
                     correct: <span class="text-success">{{ mistake['right']|capitalize }}</span>
+                    correct: <span class="text-success">{{ mistake['right'] }}</span>
                 </p>
             {% endfor %}
        </blockquote>

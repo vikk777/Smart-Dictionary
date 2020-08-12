@@ -26,6 +26,7 @@
     {% endif %}
 
     {% if addedWords %}
+        <a href="{{ url_for('abortTest') }}" class="btn btn-primary">Abort Test</a>
         <h4>Added words:</h4>
         <blockquote>
             {% for question, answer in addedWords.items() %}

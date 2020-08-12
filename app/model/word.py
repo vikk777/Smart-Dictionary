@@ -7,8 +7,9 @@ class Word():
 
     def add(self, dictionary, original, translate,
             transcription, time):
-        word = WordModel(dictionary=dictionary, original=original,
-                         translate=translate, transcription=transcription,
+        word = WordModel(dictionary=dictionary, original=original.lower(),
+                         translate=translate.lower(),
+                         transcription=transcription,
                          updateTime=time)
         db.session.add(word)
         db.session.commit()

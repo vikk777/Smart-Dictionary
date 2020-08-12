@@ -235,6 +235,9 @@ class SmartDictionary():
     def addedWords(self):
         return self._testManager.questions(current_user.id)
 
+    def abortTest(self):
+        return self._testManager.abortTest(current_user.id)
+
 # Users --------------------------------------------------
 
     def registerUser(self, name, password):

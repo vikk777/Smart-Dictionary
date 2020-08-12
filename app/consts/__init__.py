@@ -16,6 +16,8 @@ DICT_EXIST = 'Dictionary {0} already exist!'
 SUCCESS = 'info'
 ERROR = 'danger'
 
+ABORTED = 'Test was aborted.'
+
 
 class period:
     ALL_I = '-1'

@@ -107,8 +107,7 @@ class TestManager():
             if not self._user.haveMistake(userId, mistake['question']):
                 self._user.addMistake(userId, mistake['question'])
 
-        TestModel.query.filter_by(user_id=userId).delete()
-        db.session.commit()
+        self.abortTest(userId)
 
         return {'correct': correct,
                 'total': total,
@@ -124,3 +123,8 @@ class TestManager():
         """Current step and total steps"""
         return {'current': self.total(userId) - self.notPassed(userId),
                 'total': self.total(userId)}
+
+    def abortTest(self, userId):
+        TestModel.query.filter_by(user_id=userId).delete()
+        db.session.commit()
+        return True

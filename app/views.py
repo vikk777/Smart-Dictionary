@@ -442,6 +442,15 @@ def test():
         active=consts.active.TEST)
 
 
+@app.route('/test/abort/', methods=['POST', 'GET'])
+@login_required
+def abortTest():
+    smartDict.abortTest()
+    flash(consts.ABORTED, consts.SUCCESS)
+
+    return redirect(url_for('startTest'))
+
+
 @app.route('/import/', methods=['POST', 'GET'])
 @login_required
 def importWords():
